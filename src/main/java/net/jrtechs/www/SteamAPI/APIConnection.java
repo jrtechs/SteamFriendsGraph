@@ -53,14 +53,22 @@ public class APIConnection
     {
         List<String> friendsId = new ArrayList<>();
 
-        new JSONObject(WebScraper
-                .getWebsite(this.baseURL + this.friendListURL +
-                        this.apiKey + "&steamid=" + steamid))
-                .getJSONObject("friendslist")
-                .getJSONArray("friends").toList()
-                .forEach(f->
-                    friendsId.add(((HashMap<String, String>)(f)).get("steamid"))
-        );
+        try
+        {
+            new JSONObject(WebScraper
+                    .getWebsite(this.baseURL + this.friendListURL +
+                            this.apiKey + "&steamid=" + steamid))
+                    .getJSONObject("friendslist")
+                    .getJSONArray("friends").toList()
+                    .forEach(f->
+                            friendsId.add(((HashMap<String, String>)(f)).get("steamid"))
+                    );
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
         return friendsId;
     }
 

@@ -9,22 +9,27 @@ import java.net.URL;
  *
  * @author Jeffery Russell 5-25-18
  */
-public class WebScraper {
+public class WebScraper
+{
     /**
      * Grabs the contents of a website as a string
      *
      * @param link to open
      * @return source code of website as a single string
      */
-    public static String getWebsite(String link) {
-        try {
+    public static String getWebsite(String link)
+    {
+        try
+        {
             URL url = new URL(link);
 
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(url.openStream())
             );
             return WebScraper.getBufferedReaderData(br);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
         return "";
@@ -38,8 +43,10 @@ public class WebScraper {
      * @param postData to send
      * @return source code of website as a string
      */
-    public static String getPostResponse(String link, String postData) {
-        try {
+    public static String getPostResponse(String link, String postData)
+    {
+        try
+        {
             URL url = new URL(link);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
@@ -53,7 +60,9 @@ public class WebScraper {
                     new InputStreamReader(conn.getInputStream())
             );
             return WebScraper.getBufferedReaderData(br);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
         }
 
@@ -73,7 +82,8 @@ public class WebScraper {
             throws IOException {
         String html = "";
         String line;
-        while ((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null)
+        {
             html += line;
         }
         return html;
