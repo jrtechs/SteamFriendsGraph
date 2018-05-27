@@ -66,8 +66,18 @@ public class Player
                     .forEach(f-> this.friends.add(
                             new Player(con.getPlayerName(f), f)));
         }
-
         return friends;
+    }
+
+
+    /**
+     * Returns a list of all the friends of a specific player
+     *
+     * @return
+     */
+    public List<Player> fetchFriends()
+    {
+        return this.friends;
     }
 
     /**
@@ -89,6 +99,11 @@ public class Player
     public String getId()
     {
         return this.id;
+    }
+
+    public void setFriends(List<Player> friends)
+    {
+        this.friends = friends;
     }
 
 

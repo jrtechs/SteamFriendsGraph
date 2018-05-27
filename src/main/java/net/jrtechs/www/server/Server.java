@@ -36,7 +36,11 @@ public class Server extends WebSocketServer
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake)
     {
-        clients.add(new Client(conn));
+        Client newClient = new Client(conn);
+        clients.add(newClient);
+
+        newClient.start();
+
         System.out.println("New connection from " +
                 conn.getRemoteSocketAddress().getAddress().getHostAddress());
     }
@@ -58,7 +62,7 @@ public class Server extends WebSocketServer
         {
             if(client.getSocket() == conn)
             {
-                client.recievedMessage(message);
+                client.receivedMessage(message);
             }
         }
     }

@@ -3,6 +3,11 @@ package net.jrtechs.www.graphDB;
 import net.jrtechs.www.Player;
 import net.jrtechs.www.SteamAPI.APIConnection;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Does graph based operations with {@link Player}
  * and {@link RemoteConnection}
@@ -126,6 +131,13 @@ public class SteamGraph
         }
     }
 
+
+    /**
+     * Recursive function for scraping the steam api
+     *
+     * @param player
+     * @param debth
+     */
     public void insertIntoGraph(Player player, int debth)
     {
         insertIntoGraph(player);
@@ -135,6 +147,75 @@ public class SteamGraph
             player.fetchFriends(this.api)
                     .forEach(f -> insertIntoGraph(f, debth -1));
         }
+    }
+
+
+    /**
+     * Fetches the name of the player from the graph database
+     *
+     * @param id
+     * @return
+     */
+    private String getNameFromGraph(String id)
+    {
+        String query = "g.V().hasLabel('player')" +
+                ".has('id', '" + id + "')" +
+                ".values('name')";
+        return this.con.queryGraph(query).stream()
+                .findFirst().get().getObject().toString();
+    }
+
+
+    /**
+     * Fetches a list of friends from the graph database
+     *
+     * @param id
+     * @return
+     */
+    private List<Player> getFriendsFromGraph(String id)
+    {
+        List<Player> friends = new ArrayList<>();
+
+        String query = "g.V().hasLabel('player')" +
+                ".has('id', '" + id + "')" +
+                ".both().valueMap()";
+
+        this.con.queryGraph(query).stream().forEach(r->
+            friends.add(new Player(
+                ((ArrayList) (((HashMap<String, Object>)(r.getObject()))
+                    .get("name"))).get(0).toString(),
+                ((ArrayList)(((HashMap<String, Object>)(r.getObject()))
+                        .get("id"))).get(0).toString()))
+        );
+
+        return friends;
+    }
+
+
+
+    /**
+     * Fetches a player from the graph
+     *
+     * @param id
+     * @return
+     */
+    public Player getPlayerInformation(String id)
+    {
+        Player p;
+        if(!this.alreadyInGraph(id))
+        {
+            p = new Player(id);
+            this.insertIntoGraph(p);
+        }
+        else
+        {
+            p = new Player(this.getNameFromGraph(id), id);
+            System.out.println(p.getName());
+        }
+
+        p.setFriends(this.getFriendsFromGraph(id));
+
+        return p;
     }
 
 
