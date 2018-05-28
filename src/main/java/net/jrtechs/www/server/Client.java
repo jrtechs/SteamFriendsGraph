@@ -5,6 +5,8 @@ import net.jrtechs.www.graphDB.SteamGraph;
 import org.java_websocket.WebSocket;
 import org.json.JSONObject;
 
+import java.util.List;
+
 
 /**
  * Client thread which gets graph information from
@@ -39,7 +41,7 @@ public class Client extends Thread
         this.graph = new SteamGraph();
 
         //temp stuff
-        this.baseId = "76561198188400721";
+        this.baseId = "76561198086854442";
         this.debth = 1;
     }
 
@@ -52,7 +54,7 @@ public class Client extends Thread
      */
     public void receivedMessage(String message)
     {
-
+        // we don't care about this yet
     }
 
 
@@ -73,12 +75,16 @@ public class Client extends Thread
      *
      * @param p
      */
-    private void sendNodeAdd(Player p)
+    private void sendNodeAdd(Player p, int x, int y)
     {
         JSONObject request = new JSONObject();
         request.put("action", 1);
         request.put("id", p.getId());
         request.put("name", p.getName());
+
+        request.put("x", x);
+
+        request.put("y", y);
 
         this.sendJSON(request);
     }
@@ -107,6 +113,15 @@ public class Client extends Thread
     {
         System.out.println("sending " + request.toString());
         this.client.send(request.toString());
+
+        try
+        {
+            Thread.sleep(50); //prevents DDOSing the client
+        }
+        catch (Exception e)
+        {
+
+        }
     }
 
 
@@ -115,15 +130,28 @@ public class Client extends Thread
      *
      * @param p
      */
-    private void sendPlayerToClient(Player p)
+    private void sendPlayerToClient(Player p, int x, int y, int gen)
     {
-        sendNodeAdd(p);
-
-        for(Player friend: p.fetchFriends())
+        if(gen == 1)
         {
-            this.sendNodeAdd(friend);
+            sendNodeAdd(p, x, y);
+        }
+
+        List<Player> friends = p.fetchFriends();
+
+        double radianStep = Math.PI * 2 / friends.size();
+
+        double currentStep = 0;
+
+        for(Player friend: friends)
+        {
+            this.sendNodeAdd(friend, (int)(x + Math.cos(currentStep) * (300/gen)), (int)(y + Math.sin(currentStep) * (300/gen)));
 
             this.sendEdgeAdd(p, friend);
+
+            currentStep += radianStep;
+
+            System.out.println(currentStep);
         }
     }
 
@@ -136,6 +164,20 @@ public class Client extends Thread
     {
         Player b = this.graph.getPlayerInformation(this.baseId);
 
-        this.sendPlayerToClient(b);
+        List<Player> friends = b.fetchFriends();
+        this.sendPlayerToClient(b, 300, 243, 1);
+
+        double radianStep = Math.PI * 2 / friends.size();
+
+        double currentStep = 0;
+
+
+        for(Player f : b.fetchFriends())
+        {
+            f = this.graph.getPlayerInformation(f.getId());
+            this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300), (int)(243 + Math.sin(currentStep) * 300) ,2);
+
+            currentStep += radianStep;
+        }
     }
 }

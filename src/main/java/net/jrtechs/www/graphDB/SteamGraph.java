@@ -6,7 +6,6 @@ import net.jrtechs.www.SteamAPI.APIConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Does graph based operations with {@link Player}
@@ -59,12 +58,20 @@ public class SteamGraph
      */
     private boolean edgeAlreadyInGraph(Player p1, Player p2)
     {
-        String query = "g.V().hasLabel('player')" +
-                ".has('id', '" + p1.getId() + "')" +
-                ".both()" +
-                ".has('id', '" + p2.getId() + "')";
-        System.out.println(query);
-        return (1 == con.queryGraph(query).stream().count());
+        try
+        {
+            String query = "g.V().hasLabel('player')" +
+                    ".has('id', '" + p1.getId() + "')" +
+                    ".both()" +
+                    ".has('id', '" + p2.getId() + "')";
+            System.out.println(query);
+            return (1 == con.queryGraph(query).stream().count());
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+
     }
 
     /**
@@ -210,7 +217,6 @@ public class SteamGraph
         else
         {
             p = new Player(this.getNameFromGraph(id), id);
-            System.out.println(p.getName());
         }
 
         p.setFriends(this.getFriendsFromGraph(id));
