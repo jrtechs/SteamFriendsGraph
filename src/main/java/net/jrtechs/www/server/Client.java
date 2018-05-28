@@ -41,7 +41,7 @@ public class Client extends Thread
         this.graph = new SteamGraph();
 
         //temp stuff
-        this.baseId = "76561198086854442";
+        this.baseId = "76561198176504246";
         this.debth = 1;
     }
 
