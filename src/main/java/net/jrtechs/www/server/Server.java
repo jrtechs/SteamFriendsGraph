@@ -3,6 +3,7 @@ package net.jrtechs.www.server;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
 import java.util.HashSet;
@@ -29,6 +30,8 @@ public class Server extends WebSocketServer
     public Server()
     {
         super(new InetSocketAddress(TCP_PORT));
+
+        System.out.println(super.getAddress());
         clients = new HashSet<>();
     }
 
@@ -36,11 +39,6 @@ public class Server extends WebSocketServer
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake)
     {
-        Client newClient = new Client(conn);
-        clients.add(newClient);
-
-        newClient.start();
-
         System.out.println("New connection from " +
                 conn.getRemoteSocketAddress().getAddress().getHostAddress());
     }
@@ -58,19 +56,34 @@ public class Server extends WebSocketServer
     public void onMessage(WebSocket conn, String message)
     {
         System.out.println("Message from client: " + message);
-        for (Client client : clients)
+
+        JSONObject object = new JSONObject(message);
+        System.out.println(message);
+
+        if(object.has("graph"))
         {
-            if(client.getSocket() == conn)
+            for (Client client : clients)
             {
-                client.receivedMessage(message);
+                if(client.getSocket() == conn)
+                {
+                    return;
+                }
             }
+
+            Client newClient = new Client(conn, object.getString("id"),
+                    object.getInt("graph"));
+            clients.add(newClient);
+
+            newClient.start();
         }
+
+
     }
 
     @Override
     public void onError(WebSocket conn, Exception ex)
     {
-        //ex.printStackTrace();
+        ex.printStackTrace();
         if (conn != null)
         {
             clients.remove(conn);

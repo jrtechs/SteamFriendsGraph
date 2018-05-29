@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="css/bootstrap.css" media="screen">
-    <link rel="stylesheet" href="css/custom.min.css">
 
 
     <script src="src/sigma.core.js"></script>
@@ -61,7 +60,7 @@
 <body>
 <div class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
     <div class="container">
-        <a href="#" class="navbar-brand">Jrtechs Steam Graph Project</a>
+        <a href="index.html" class="navbar-brand">Jrtechs Steam Graph Project</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -74,7 +73,7 @@
                         <a class="dropdown-item" href="commonFriends.html">Common Friends</a>
                         <a class="dropdown-item" href="closestPath.html">Closest Path</a>
                         <a class="dropdown-item" href="commonGames.html">Common Games</a>
-                        <a class="dropdown-item" href="bestFriends.html">Best Friends</a>
+                        <a class="dropdown-item" href="friendsWithFriends.html">Best Friends</a>
                     </div>
                 </li>
 
@@ -111,6 +110,7 @@
 <script>
 
     var s,
+        r,
         g = {
             nodes: [],
             edges: []
@@ -135,12 +135,20 @@
     });
 
 
-    connection = new WebSocket('ws://127.0.0.1:4444');
+    connection = new WebSocket('ws://jrtechs.student.rit.edu:4444');
 
     connection.onopen = function ()
     {
         console.log('Connected!');
-        connection.send('Ping'); // Send the message 'Ping' to the server
+        if(r != undefined)
+        {
+            connection.send("{id:'" + r.id + "', graph:" + r.graph + "}");
+        }
+        else
+        {
+            connection.close();
+        }
+
     };
 
     // Log errors
@@ -151,15 +159,18 @@
 
     function addNodeToGraph(request)
     {
-        s.graph.addNode({
-            id: request.id,
-            label: request.name,
-            x: request.x,
-            y: request.y,
-            size: Math.random(),
-            color: colors[Math.floor(Math.random() * colors.length)]
-        });
-        s.refresh();
+        if(s.graph.nodes(request.id) == undefined)
+        {
+            s.graph.addNode({
+                id: request.id,
+                label: request.name,
+                x: request.x,
+                y: request.y,
+                size: Math.random(),
+                color: colors[Math.floor(Math.random() * colors.length)]
+            });
+            s.refresh();
+        }
     }
 
 
@@ -188,8 +199,16 @@
         {
             addEdgeToGraph(request);
         }
-        console.log('Server: ' + e.data);
     };
+
+    var ids = prompt("Enter the steam id to graph:", "76561198188400721");
+
+    if(ids != null)
+    {
+        r = new Object();
+        r.graph = 1;
+        r.id = ids;
+    }
 
 </script>
 
@@ -212,7 +231,7 @@
 ┈╱▔┈┈▕┈┈┈┈▏┈┈▔╲▔▔
 ┈╲▂▂▂╱┈┈┈┈╲▂▂▂╱┈
 
-If you are seeing this money that means that you are interested in my
+If you are seeing this monkey that means that you are interested in my
 code. Yay!! If you are not here to hack me ... you should really consider
 contributing to some of my public projects on github.
 

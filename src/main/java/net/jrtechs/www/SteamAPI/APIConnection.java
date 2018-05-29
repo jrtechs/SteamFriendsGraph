@@ -3,11 +3,13 @@ package net.jrtechs.www.SteamAPI;
 import net.jrtechs.www.utils.ConfigLoader;
 
 import net.jrtechs.www.utils.WebScraper;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class which is used to pull information from the Steam api
@@ -74,6 +76,47 @@ public class APIConnection
 
 
     /**
+     * returns a map from the steam id to the players name
+     *
+     * * tricky because we can only request up to 100 ids
+     * in one request
+     *
+     * @param ids
+     * @return
+     */
+    public Map<String, String> getNames(List<String> ids)
+    {
+        System.out.println(ids);
+        Map<String, String> map = new HashMap<>();
+
+        while(!ids.isEmpty())
+        {
+            String queryUrl = baseURL + playerInfoURL + apiKey + "&steamids=";
+
+            int remove = (ids.size() > 100) ? 100 : ids.size();
+
+            for(int i = 0; i < remove; i++)
+            {
+                queryUrl = queryUrl + "," + ids.remove(0);
+            }
+
+            System.out.println(queryUrl);
+            JSONArray names = new JSONObject(WebScraper.getWebsite(queryUrl))
+                    .getJSONObject("response").getJSONArray("players");
+
+            for(int i = 0; i < names.length(); i++)
+            {
+                JSONObject player = names.getJSONObject(i);
+                System.out.println(player);
+                map.put(player.getString("steamid"),
+                        player.getString("personaname"));
+            }
+        }
+        return map;
+    }
+
+
+    /**
      * Returns the name of the player with a specific steam id
      *
      * @param steamid the steam id of player
@@ -83,7 +126,7 @@ public class APIConnection
     {
         return ((HashMap<String, String>) new JSONObject(WebScraper
                 .getWebsite(this.baseURL + this.playerInfoURL +
-                    this.apiKey + "&steamids=" + steamid))
+                        this.apiKey + "&steamids=" + steamid))
                 .getJSONObject("response")
                 .getJSONArray("players")
                 .toList().stream().findAny().get()).get("personaname");

@@ -1,6 +1,4 @@
-package net.jrtechs.www;
-
-import net.jrtechs.www.SteamAPI.APIConnection;
+package net.jrtechs.www.server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,39 +32,6 @@ public class Player
         this.name = name;
         this.id = id;
         this.friends = null;
-    }
-
-
-    /**
-     * Sets the fields of the player only based on it's
-     * steam id
-     *
-     * @param id
-     */
-    public Player(String id)
-    {
-        this.id = id;
-        this.friends = null;
-        this.name = new APIConnection().getPlayerName(id);
-    }
-
-
-    /**
-     * Returns a list of all the friends of a specific player
-     *
-     * @param con
-     * @return
-     */
-    public List<Player> fetchFriends(APIConnection con)
-    {
-        if(this.friends == null)
-        {
-            this.friends = new ArrayList<>();
-            con.getFriends(this.id)
-                    .forEach(f-> this.friends.add(
-                            new Player(con.getPlayerName(f), f)));
-        }
-        return friends;
     }
 
 

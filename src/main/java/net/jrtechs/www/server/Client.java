@@ -1,6 +1,5 @@
 package net.jrtechs.www.server;
 
-import net.jrtechs.www.Player;
 import net.jrtechs.www.graphDB.SteamGraph;
 import org.java_websocket.WebSocket;
 import org.json.JSONObject;
@@ -30,31 +29,21 @@ public class Client extends Thread
     private int debth;
 
 
+    private int type;
+
+
     /**
      * Initializes the client with a steam graph and
      * web socket information.
      * @param client
      */
-    public Client(WebSocket client)
+    public Client(WebSocket client, String id, int type)
     {
         this.client = client;
         this.graph = new SteamGraph();
-
-        //temp stuff
-        this.baseId = "76561198176504246";
+        this.type = type;
+        this.baseId = id;
         this.debth = 1;
-    }
-
-
-    /**
-     * Method which is called when the client sends a message
-     * to the server.
-     *
-     * @param message
-     */
-    public void receivedMessage(String message)
-    {
-        // we don't care about this yet
     }
 
 
@@ -111,16 +100,14 @@ public class Client extends Thread
 
     private void sendJSON(JSONObject request)
     {
-        System.out.println("sending " + request.toString());
         this.client.send(request.toString());
-
         try
         {
             Thread.sleep(50); //prevents DDOSing the client
         }
         catch (Exception e)
         {
-
+            e.printStackTrace();
         }
     }
 
@@ -150,8 +137,6 @@ public class Client extends Thread
             this.sendEdgeAdd(p, friend);
 
             currentStep += radianStep;
-
-            System.out.println(currentStep);
         }
     }
 
@@ -162,7 +147,7 @@ public class Client extends Thread
     @Override
     public void run()
     {
-        Player b = this.graph.getPlayerInformation(this.baseId);
+        Player b = this.graph.getPlayer(this.baseId);
 
         List<Player> friends = b.fetchFriends();
         this.sendPlayerToClient(b, 300, 243, 1);
@@ -174,10 +159,12 @@ public class Client extends Thread
 
         for(Player f : b.fetchFriends())
         {
-            f = this.graph.getPlayerInformation(f.getId());
+            f = this.graph.getPlayer(f.getId());
             this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300), (int)(243 + Math.sin(currentStep) * 300) ,2);
 
             currentStep += radianStep;
         }
+
+        this.client.close();
     }
 }
