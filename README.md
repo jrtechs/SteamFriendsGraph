@@ -16,6 +16,8 @@ If you are lucky, you will find it live at [http://jrtechs.student.rit.edu/frien
 It is still being actively developed and does not have permanent hosting so there is a %60
 chance at any time that you will be able to access it. 
 
+![Graph](exampleGraph.png)
+
 
 # Bugs
 * Does not work with firefox
