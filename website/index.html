@@ -45,7 +45,62 @@
 <div class="container">
 <br><br><br>
 
-    <h1>TDLTR</h1>
+    <h1 id="steamgraphanalysis">Steam Graph Analysis</h1>
+
+    <p>This is a project that I threw together during the weekend to play around with
+        gremlin graph database. Currently this project scrapes the steam API for friends
+        and their friends which can be used to generate a graph. This information is stored
+        locally in a gremlin server and is then sent to the client via a web socket. </p>
+
+    <p><img src="Diagram.svg" alt="Diagram" width="100%" /></p>
+
+    <p><iframe width="560" height="315" src="https://www.youtube.com/embed/WJfo9bU0nH8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+
+    <p>This project is in the VERY early stages of development and is far from finished.
+        If you are lucky, you will find it live at <a href="http://jrtechs.student.rit.edu/friendsOfFriends.html">http://jrtechs.student.rit.edu/friendsOfFriends.html</a>.
+        It is still being actively developed and does not have permanent hosting so there is a %60
+        chance at any time that you will be able to access it. </p>
+
+    <p><img src="exampleGraph.png" alt="Graph" /></p>
+
+    <h1 id="bugs">Bugs</h1>
+
+    <ul>
+        <li>Does not work with firefox</li>
+
+        <li>Tends to crash w/o telling user if you provide an invalid steam id</li>
+    </ul>
+
+    <h1 id="todo">TODO</h1>
+
+    <ul>
+        <li>Include a steam name to steam id lookup</li>
+
+        <li>Dockerize this entire environment</li>
+
+        <li>Connect the gremlin/janus server to a HBase server for persistent storage</li>
+
+        <li>Make the graphs look better -- possibly switch from sigma.js to d3</li>
+
+        <li>Get the java web socket to work with ssh -- currently does not work with wss</li>
+
+        <li>Make more graphs to provide more insights
+
+
+            <ul>
+                <li>Friends with friends -- shows which of your friends are friends with each other</li>
+
+                <li>Most common friends friends -- will show you people you may know</li>
+
+                <li>Graph of a larger chunk of the steam community</li>
+
+                <li>...</li></ul>
+        </li>
+
+        <li>Write more documentation on how the system as a whole works.</li>
+
+        <li>Write blog post on what I learned during this project.   </li>
+    </ul>
 
 </div>
 
