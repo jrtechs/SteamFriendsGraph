@@ -16,17 +16,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="themes">Graphs <span class="caret"></span></a>
-                    <div class="dropdown-menu" aria-labelledby="themes">
-                        <a class="dropdown-item" href="friendsOfFriends.html">Friends of Friends</a>
-                        <a class="dropdown-item" href="commonFriends.html">Common Friends</a>
-                        <a class="dropdown-item" href="closestPath.html">Closest Path</a>
-                        <a class="dropdown-item" href="commonGames.html">Common Games</a>
-                        <a class="dropdown-item" href="friendsWithFriends.html">Best Friends</a>
-                    </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="graphs.html">Graphs</a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link" href="https://jrtechs.net">Blog</a>
                 </li>
@@ -43,9 +35,34 @@
 
 
 <div class="container">
-    <br><br><br>
-
-    <h1>TDLTR</h1>
+    <br><br><br><br>
+    <div class="jumbotron">
+        <h1 class="text-center">Generate a graph</h1><br>
+        <form action="graph.html" method="get">
+            <div class="form-group row">
+                <label for="idID" class="col-sm-2 col-form-label">Steam ID</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="idID" placeholder="Steam ID" name="id">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="graphId" class="col-sm-2 col-form-label">Graph Type</label>
+                <div class="col-sm-10">
+                    <select class="custom-select mb-3" id="graphId" name="graph">
+                        <option selected>Select Graph Type</option>
+                        <option value="1">Friends of Friends</option>
+                        <option value="2">Friends with Friends</option>
+                        <option value="3">Most common friends of Friends</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <button type="submit" class="btn btn-primary">Graph!</button>
+                </div>
+            </div>
+        </form>
+    </div>
 
 </div>
 

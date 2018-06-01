@@ -66,17 +66,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="themes">Graphs <span class="caret"></span></a>
-                    <div class="dropdown-menu" aria-labelledby="themes">
-                        <a class="dropdown-item" href="friendsOfFriends.html">Friends of Friends</a>
-                        <a class="dropdown-item" href="commonFriends.html">Common Friends</a>
-                        <a class="dropdown-item" href="closestPath.html">Closest Path</a>
-                        <a class="dropdown-item" href="commonGames.html">Common Games</a>
-                        <a class="dropdown-item" href="friendsWithFriends.html">Best Friends</a>
-                    </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="graphs.html">Graphs</a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link" href="https://jrtechs.net">Blog</a>
                 </li>
@@ -134,15 +126,19 @@
         }
     });
 
+    getData = getUrlVars();
 
     connection = new WebSocket('ws://jrtechs.student.rit.edu:4444');
 
     connection.onopen = function ()
     {
         console.log('Connected!');
-        if(r != undefined)
+
+        console.log(r);
+
+        if(getData["id"] != undefined && getData["id"] != "")
         {
-            connection.send("{id:'" + r.id + "', graph:" + r.graph + "}");
+            connection.send("{id:'" + getData["id"] + "', graph:" + getData["graph"] + "}");
         }
         else
         {
@@ -156,6 +152,15 @@
     {
         console.log('WebSocket Error ' + error);
     };
+
+    function getUrlVars()
+    {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
 
     function addNodeToGraph(request)
     {
@@ -200,15 +205,6 @@
             addEdgeToGraph(request);
         }
     };
-
-    var ids = prompt("Enter the steam id to graph:", "76561198188400721");
-
-    if(ids != null)
-    {
-        r = new Object();
-        r.graph = 1;
-        r.id = ids;
-    }
 
 </script>
 
