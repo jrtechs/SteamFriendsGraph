@@ -98,6 +98,11 @@ public class Client extends Thread
     }
 
 
+    /**
+     * sends a json object to the client
+     *
+     * @param request
+     */
     private void sendJSON(JSONObject request)
     {
         this.client.send(request.toString());
@@ -117,7 +122,7 @@ public class Client extends Thread
      *
      * @param p
      */
-    private void sendPlayerToClient(Player p, int x, int y, int gen)
+    private void sendPlayerToClient(Player p, int x, int y, int gen, int multiplier)
     {
         if(gen == 1)
         {
@@ -132,7 +137,8 @@ public class Client extends Thread
 
         for(Player friend: friends)
         {
-            this.sendNodeAdd(friend, (int)(x + Math.cos(currentStep) * (300/gen)), (int)(y + Math.sin(currentStep) * (300/gen)));
+            this.sendNodeAdd(friend, (int)(x + Math.cos(currentStep) *
+                    (multiplier/gen)), (int)(y + Math.sin(currentStep) * (multiplier/gen)));
 
             this.sendEdgeAdd(p, friend);
 
@@ -142,15 +148,14 @@ public class Client extends Thread
 
 
     /**
-     * Where the magic happens
+     * Generates a friends of friends graph for the client
      */
-    @Override
-    public void run()
+    private void friendsOfFriends()
     {
         Player b = this.graph.getPlayer(this.baseId);
 
         List<Player> friends = b.fetchFriends();
-        this.sendPlayerToClient(b, 300, 243, 1);
+        this.sendPlayerToClient(b, 300, 243, 1, 300);
 
         double radianStep = Math.PI * 2 / friends.size();
 
@@ -160,11 +165,57 @@ public class Client extends Thread
         for(Player f : b.fetchFriends())
         {
             f = this.graph.getPlayer(f.getId());
-            this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300), (int)(243 + Math.sin(currentStep) * 300) ,2);
+            this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300), (int)(243 + Math.sin(currentStep) * 300) ,2, 300);
 
             currentStep += radianStep;
         }
-
         this.client.close();
+    }
+
+
+    /**
+     * Generates the friends with friends graph for the client
+     *
+     * Displays all of the requested ids friends, then it only adds edges
+     * between players if they are both friends of yours.
+     */
+    private void friendsWithFriends()
+    {
+        Player b = this.graph.getPlayer(this.baseId);
+
+        this.sendPlayerToClient(b, 600, 440, 1, 600);
+
+        for(Player f : b.fetchFriends()) //all my friends
+        {
+            f = this.graph.getPlayer(f.getId());
+            for(Player ff : f.fetchFriends()) // all my friends friends
+            {
+                for(Player f2 : b.fetchFriends()) // all my friends
+                {
+                    if(f2.getId().equals(ff.getId()))
+                    {
+                        this.sendEdgeAdd(f, ff);
+                    }
+                }
+            }
+        }
+        this.client.close();
+    }
+
+
+    /**
+     * Where the magic happens
+     */
+    @Override
+    public void run()
+    {
+        if(this.type == 1)
+        {
+            friendsOfFriends();
+        }
+        else
+        {
+            friendsWithFriends();
+        }
     }
 }

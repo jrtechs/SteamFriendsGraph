@@ -205,15 +205,20 @@ public class SteamGraph
         String query = "g.V().hasLabel('player')" +
                 ".has('id', '" + id + "')" +
                 ".both().valueMap()";
-
-        this.con.queryGraph(query).stream().forEach(r->
-                friends.add(new Player(
-                        ((ArrayList) (((HashMap<String, Object>)(r.getObject()))
-                                .get("name"))).get(0).toString(),
-                        ((ArrayList)(((HashMap<String, Object>)(r.getObject()))
-                                .get("id"))).get(0).toString()))
-        );
-
+        try
+        {
+            this.con.queryGraph(query).stream().forEach(r ->
+                    friends.add(new Player(
+                            ((ArrayList) (((HashMap<String, Object>) (r.getObject()))
+                                    .get("name"))).get(0).toString(),
+                            ((ArrayList) (((HashMap<String, Object>) (r.getObject()))
+                                    .get("id"))).get(0).toString()))
+            );
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
         return friends;
     }
 
