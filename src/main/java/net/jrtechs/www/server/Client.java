@@ -97,6 +97,17 @@ public class Client extends Thread
         this.sendJSON(request);
     }
 
+    /**
+     * Tells the tells the js on the client side to start
+     * the force applied to the graph
+     */
+    private void sendFinished()
+    {
+        JSONObject request = new JSONObject();
+        request.put("action", 3);
+        this.sendJSON(request);
+    }
+
 
     /**
      * sends a json object to the client
@@ -180,7 +191,6 @@ public class Client extends Thread
 
             currentStep += radianStep;
         }
-        this.client.close();
     }
 
 
@@ -210,7 +220,6 @@ public class Client extends Thread
                 }
             }
         }
-        this.client.close();
     }
 
 
@@ -228,5 +237,7 @@ public class Client extends Thread
         {
             friendsWithFriends();
         }
+        this.sendFinished();
+        this.client.close();
     }
 }

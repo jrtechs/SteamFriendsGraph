@@ -107,6 +107,7 @@
         .muted {
             fill-opacity: 0.1;
             stroke-opacity: 0.1;
+            font-size: 0;
         }
     </style>
     <div id="graph-container" style="width:100%; height:100%"></div>
@@ -225,7 +226,17 @@
         {
             addEdgeToGraph(request);
         }
+        else if(request.action == 3)
+        {
+            s.startForceAtlas2({worker: true, barnesHutOptimize: false, scalingRatio: 0.5, slowDown: 5, gravity: 20});
+
+            setTimeout(function ()
+            {
+                s.stopForceAtlas2();
+            }, 30000);
+        }
     };
+
 
 
 
