@@ -191,7 +191,7 @@
                 label: request.name,
                 x: request.x,
                 y: request.y,
-                size: Math.random(),
+                size: request.size,
                 color: colors[Math.floor(Math.random() * colors.length)]
             });
             s.refresh();
@@ -205,7 +205,7 @@
             id: request.id,
             source: request.p1,
             target: request.p2,
-            size: Math.random(),
+            size: 1
         });
         s.refresh();
     }

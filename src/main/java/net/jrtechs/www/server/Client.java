@@ -64,13 +64,13 @@ public class Client extends Thread
      *
      * @param p
      */
-    private void sendNodeAdd(Player p, int x, int y)
+    private void sendNodeAdd(Player p, int x, int y, int size)
     {
         JSONObject request = new JSONObject();
         request.put("action", 1);
         request.put("id", p.getId());
         request.put("name", p.getName());
-
+        request.put("size", size);
         request.put("x", x);
 
         request.put("y", y);
@@ -126,7 +126,7 @@ public class Client extends Thread
     {
         if(gen == 1)
         {
-            sendNodeAdd(p, x, y);
+            sendNodeAdd(p, x, y, 150);
         }
 
         List<Player> friends = p.fetchFriends();
@@ -137,8 +137,19 @@ public class Client extends Thread
 
         for(Player friend: friends)
         {
-            this.sendNodeAdd(friend, (int)(x + Math.cos(currentStep) *
-                    (multiplier/gen)), (int)(y + Math.sin(currentStep) * (multiplier/gen)));
+            if(gen == 1)
+            {
+                this.sendNodeAdd(friend, (int)(x + Math.cos(currentStep) *
+                        (multiplier/gen)), (int)(y + Math.sin(currentStep) *
+                        (multiplier/gen)), 150);
+            }
+            else
+            {
+                this.sendNodeAdd(friend, (int)(x + Math.cos(currentStep) *
+                        (multiplier/gen)), (int)(y + Math.sin(currentStep) *
+                        (multiplier/gen)), 30);
+            }
+
 
             this.sendEdgeAdd(p, friend);
 
