@@ -20,7 +20,6 @@ chance at any time that you will be able to access it.
 
 
 # Bugs
-* Does not work with firefox
 * Tends to crash w/o telling user if you provide an invalid steam id
 
 
