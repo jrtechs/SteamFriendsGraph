@@ -4,6 +4,7 @@ import net.jrtechs.www.graphDB.SteamGraph;
 import org.java_websocket.WebSocket;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -28,6 +29,9 @@ public class Client extends Thread
     /** How many layers of friends we are traversing */
     private int debth;
 
+    /** JSONObjects to send the client */
+    private List<JSONObject> queue;
+
 
     private int type;
 
@@ -44,6 +48,7 @@ public class Client extends Thread
         this.type = type;
         this.baseId = id;
         this.debth = 1;
+        this.queue = new ArrayList<>();
     }
 
 
@@ -116,14 +121,31 @@ public class Client extends Thread
      */
     private void sendJSON(JSONObject request)
     {
-        this.client.send(request.toString());
-        try
+        this.queue.add(request);
+    }
+
+
+    /**
+     * Sends the next object to the client
+     */
+    public void sendNextRequest()
+    {
+        while(this.queue.isEmpty())
         {
-            Thread.sleep(50); //prevents DDOSing the client
+            try
+            {
+                Thread.sleep(500);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
-        catch (Exception e)
+        JSONObject send =queue.remove(0);
+        this.client.send(send.toString());
+        if(send.getInt("action") == 3)
         {
-            e.printStackTrace();
+            this.client.close();
         }
     }
 
@@ -133,7 +155,8 @@ public class Client extends Thread
      *
      * @param p
      */
-    private void sendPlayerToClient(Player p, int x, int y, int gen, int multiplier)
+    private void sendPlayerToClient(Player p, int x, int y,
+                                    int gen, int multiplier)
     {
         if(gen == 1)
         {
@@ -187,10 +210,12 @@ public class Client extends Thread
         for(Player f : b.fetchFriends())
         {
             f = this.graph.getPlayer(f.getId());
-            this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300), (int)(243 + Math.sin(currentStep) * 300) ,2, 300);
+            this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300),
+                    (int)(243 + Math.sin(currentStep) * 300) ,2, 300);
 
             currentStep += radianStep;
         }
+        this.sendFinished();
     }
 
 
@@ -220,6 +245,7 @@ public class Client extends Thread
                 }
             }
         }
+        this.sendFinished();
     }
 
 
@@ -237,7 +263,5 @@ public class Client extends Thread
         {
             friendsWithFriends();
         }
-        this.sendFinished();
-        this.client.close();
     }
 }

@@ -121,14 +121,6 @@
             edges: []
         },
         colors = [
-            // '#617db4',
-            // '#668f3c',
-            // '#c6583e',
-            // '#b956af',
-            // '#ac80a0',
-            // '#c2cae8',
-            // '#8380b6',
-            // '#738290'
             '#4281a4',
             '#5da9e9',
             '#003f91',
@@ -136,7 +128,10 @@
             '#6d326d'
         ];
 
-    // Instantiate sigma:
+
+    /**
+     * Creates a new sigma graph
+     */
     s = new sigma({
         graph: g,
         settings: {
@@ -144,6 +139,10 @@
         }
     });
 
+
+    /**
+     * Sets the sigma graph to render using svg
+     */
     s.addRenderer({
         id: 'main',
         type: 'svg',
@@ -151,16 +150,37 @@
         freeStyle: true
     });
 
-    getData = getUrlVars();
 
+    /**
+     * Simple function to get the get data from the url
+     */
+    function getUrlVars()
+    {
+        var vars = {};
+        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+            function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+
+    /** Web socket to communicate with the steam friend java server */
     connection = new WebSocket('ws://localhost:4444');
 
+    /**
+     * When the web socket is opened, this function
+     * fetches the get data and requests the server
+     * to start giving it graph information
+     */
     connection.onopen = function ()
     {
-        console.log('Connected!');
+        var getData = getUrlVars();
         if(getData["id"] != undefined && getData["id"] != "")
         {
-            connection.send("{id:'" + getData["id"] + "', graph:" + getData["graph"] + "}");
+            connection.send("{id:'" + getData["id"] + "', graph:" +
+                getData["graph"] + "}");
+            connection.send("{go:1}");
         }
         else
         {
@@ -169,21 +189,22 @@
 
     };
 
-    // Log errors
+    /**
+     * Logs any errors with the web socket -- usually error
+     * connecting to the server
+     * @param error
+     */
     connection.onerror = function (error)
     {
         console.log('WebSocket Error ' + error);
     };
 
-    function getUrlVars()
-    {
-        var vars = {};
-        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-            vars[key] = value;
-        });
-        return vars;
-    }
 
+    /**
+     * Helper function to add a new node to the sigma graph
+     *
+     * @param request
+     */
     function addNodeToGraph(request)
     {
         if(s.graph.nodes(request.id) == undefined)
@@ -200,7 +221,12 @@
         }
     }
 
-
+    /**
+     * Helper function to add an edge between two nodes on the
+     * sigma graph
+     *
+     * @param request
+     */
     function addEdgeToGraph(request)
     {
         s.graph.addEdge({
@@ -213,25 +239,41 @@
     }
 
 
-    // Log messages from the server
+    /**
+     * Parses any events from the server
+     * action 1: add a new node to the graph
+     * action 2: add a new edge to the graph
+     * action 3: start applying forces to the graph
+     *
+     * @param e
+     */
     connection.onmessage = function (e)
     {
         var request = JSON.parse(e.data);
 
         if(request.action == 1)
         {
-            addNodeToGraph(request);
+            setTimeout(function()
+            {
+                addNodeToGraph(request);
+                connection.send("{go:1}");
+            }, 0);
+
         }
         else if(request.action == 2)
         {
-            addEdgeToGraph(request);
-        }
-        else if(request.action == 3)
-        {
-            s.startForceAtlas2({worker: true, barnesHutOptimize: false, scalingRatio: 0.5, slowDown: 5, gravity: 20});
-
-            setTimeout(function ()
+            setTimeout(function()
             {
+                addEdgeToGraph(request);
+                connection.send("{go:1}");
+            }, 0);
+
+        }
+        else if(request.action == 3) {
+            s.startForceAtlas2({worker: true, barnesHutOptimize: false,
+                scalingRatio: 3, slowDown: 5, gravity: 20});
+
+            setTimeout(function () {
                 s.stopForceAtlas2();
             }, 30000);
         }
@@ -239,13 +281,11 @@
 
 
 
-
-
-
-    //jquery stuff for hiding and displaying users when clicked
+    /**
+     * jquery stuff for hiding and displaying users when clicked
+     */
     s.bind('clickNode doubleClickNode rightClickNode', function(e)
     {
-        console.log(e.type, e);
         $('.sigma-node, .sigma-edge').each(function()
         {
             mute(this);
@@ -266,18 +306,18 @@
     function mute(node)
     {
         if (!~node.getAttribute('class').search(/muted/))
-            node.setAttributeNS(null, 'class', node.getAttribute('class') + ' muted');
+            node.setAttributeNS(null, 'class',
+                node.getAttribute('class') + ' muted');
     }
 
     function unmute(node)
     {
-        node.setAttributeNS(null, 'class', node.getAttribute('class').replace(/(\s|^)muted(\s|$)/g, '$2'));
+        node.setAttributeNS(null, 'class',
+            node.getAttribute('class').replace(/(\s|^)muted(\s|$)/g, '$2'));
     }
 
     $('.sigma-node').click(function()
     {
-
-        console.log("click");
         $('.sigma-node, .sigma-edge').each(function()
         {
             mute(this);

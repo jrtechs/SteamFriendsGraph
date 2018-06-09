@@ -47,7 +47,6 @@ public class Server extends WebSocketServer
     public void onClose(WebSocket conn, int code, String reason, boolean remote)
     {
         this.removeClient(conn);
-
         System.out.println("Closed connection to " +
                 conn.getRemoteSocketAddress().getAddress().getHostAddress());
     }
@@ -55,10 +54,7 @@ public class Server extends WebSocketServer
     @Override
     public void onMessage(WebSocket conn, String message)
     {
-        System.out.println("Message from client: " + message);
-
         JSONObject object = new JSONObject(message);
-        System.out.println(message);
 
         if(object.has("graph"))
         {
@@ -75,6 +71,16 @@ public class Server extends WebSocketServer
             clients.add(newClient);
 
             newClient.start();
+        }
+        else if(object.has("go"))
+        {
+            for(Client client: clients)
+            {
+                if(client.getSocket() == conn)
+                {
+                    client.sendNextRequest();
+                }
+            }
         }
 
 
