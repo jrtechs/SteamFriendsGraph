@@ -1,13 +1,17 @@
 package net.jrtechs.www;
 
+import net.jrtechs.www.server.Server;
+
 /**
- * Hello world!
+ * Launcher for the server
  *
+ * @author Jeffery Russell 6-9-18
  */
 public class App 
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        System.out.println("Starting Server");
+        new Server().start();
     }
 }
