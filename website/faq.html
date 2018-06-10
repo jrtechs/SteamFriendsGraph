@@ -48,8 +48,145 @@
 
 
 <div class="container">
-    TDLTR
+    <br><br><br>
+    <h1 class="align-content-center">Frequently asked questions</h1>
+    <div class="card-group" id="faqAccordion">
+        <div class="row w-100">
+            <div class="card card-body ">
+                <div class="panel-heading accordion-toggle question-toggle collapsed" data-toggle="collapse" data-parent="#faqAccordion" data-target="#question0">
+                    <h4 class="panel-title">
+                        <a href="#" class="ing">Q: How do I get my Steam ID?</a>
+                    </h4>
 
+                </div>
+                <div id="question0" class="panel-collapse collapse" style="height: 0px;">
+                    <div class="panel-body">
+                        <h5><span class="label label-primary">Answer</span>
+                        </h5>
+                        <p>
+                            Option 1:<br>
+                            If you have steam open, simply click on the profile which you would like to view
+                            from your friends list. The steam ID will be in the url that appears in the steam
+                            browser.
+                            <img src="img/faq/steamIdOption2.png">
+                        </p>
+
+                        <p>
+                            Option 2:<br>
+                            If you only know the steam username, you can use steam ID look up sites like
+                            <a href="https://steamid.io/">STEAMID I/O</a>. For this website, you will want
+                            to use the steamID64 number.
+                            <img src="img/faq/steamId.png">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row w-100">
+            <div class="card card-body ">
+                <div class="panel-heading accordion-toggle collapsed question-toggle" data-toggle="collapse" data-parent="#faqAccordion" data-target="#question1">
+                    <h4 class="panel-title">
+                        <a href="#" class="ing">Q: Why did you make this?</a>
+                    </h4>
+
+                </div>
+                <div id="question1" class="panel-collapse collapse" style="height: 0px;">
+                    <div class="panel-body">
+                        <h5><span class="label label-primary">Answer</span></h5>
+
+                        <p>Great question, I will get back to you on that one.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row w-100">
+            <div class="card card-body  ">
+                <div class="panel-heading accordion-toggle collapsed question-toggle" data-toggle="collapse" data-parent="#faqAccordion" data-target="#question2">
+                    <h4 class="panel-title">
+                        <a href="#" class="ing">Q: Why is the back end written in Java?</a>
+                    </h4>
+
+                </div>
+                <div id="question2" class="panel-collapse collapse" style="height: 0px;">
+                    <div class="panel-body">
+                        <h5><span class="label label-primary">Answer</span></h5>
+
+                        <p>Contrary to popular belief, Java is not a <i>terrible</i> language. For this project
+                        I needed something that was easy to work with a Gremlin database -- the tinkerpop framework makes
+                        this very convenient. Overall, I needed a backend because I cannot dish out my steam api key to users.
+                        Plus, this way I can cache steam friends making graph creation times faster.</p>
+                        <img src="img/faq/java.png">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row w-100">
+            <div class="card card-body ">
+                <div class="panel-heading accordion-toggle collapsed question-toggle" data-toggle="collapse" data-parent="#faqAccordion" data-target="#question3">
+                    <h4 class="panel-title">
+                        <a href="#" class="ing">Q: Does steam really allow you to do this?</a>
+                    </h4>
+
+                </div>
+                <div id="question3" class="panel-collapse collapse" style="height: 0px;">
+                    <div class="panel-body">
+                        <h5><span class="label label-primary">Answer</span></h5>
+
+                        <p>Yes. You can read all about Steam's API usage <a href="https://steamcommunity.com/dev/apiterms">here</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row w-100">
+            <div class="card card-body ">
+                <div class="panel-heading accordion-toggle collapsed question-toggle" data-toggle="collapse" data-parent="#faqAccordion" data-target="#question5">
+                    <h4 class="panel-title">
+                        <a href="#" class="ing">Q: Can I run my own Steam friend graph server?</a>
+                    </h4>
+
+                </div>
+                <div id="question5" class="panel-collapse collapse" style="height: 0px;">
+                    <div class="panel-body">
+                        <h5><span class="label label-primary">Answer</span></h5>
+
+                        <p>Go for it, all the code is on <a href="https://github.com/jrtechs/SteamFriendsGraph">GitHub</a>. I am going to be making a "comprehensive" docs which
+                        should explain how to run this.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row w-100">
+            <div class="card card-body ">
+                <div class="panel-heading accordion-toggle collapsed question-toggle" data-toggle="collapse" data-parent="#faqAccordion" data-target="#question6">
+                    <h4 class="panel-title">
+                        <a href="#" class="ing">Q: Why do I not see all my friends?</a>
+                    </h4>
+
+                </div>
+                <div id="question6" class="panel-collapse collapse" style="height: 0px;">
+                    <div class="panel-body">
+                        <h5><span class="label label-primary">Answer</span></h5>
+                        <p>Since the server caches all the friend requests in a local graph database, it is possible to
+                            not see all your friends if you recently added them. I am working on a solution to this,
+                        however, I don't want to excessively hammer the steam API if I don't have to.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br>
+    <center><img class="w-50" src="img/faq/faqGraph.png" /></center>
+
+    <br>
 </div>
 
 
