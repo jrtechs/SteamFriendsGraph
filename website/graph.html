@@ -111,34 +111,49 @@
             left: 0;
             right: 0;
             position: absolute;
-            /*background-color: #455660;*/
+            background-color: #455660;
+        }
+        .sigma-edge {
+            stroke: #14191C;
+            fill-opacity: 0.7;
+            stroke-opacity: 0.7;
+        }
+        .sigma-node {
+            fill: #008080;
+            stroke: #14191C;
+            stroke-width: 2px;
         }
         .sigma-node:hover {
             fill: blue;
         }
+        .sigma-label
+        {
+            fill: #00CED1 !important;
+        }
         .muted {
             fill-opacity: 0.1;
             stroke-opacity: 0.1;
-            font-size: 0;
         }
+        /*.sigma-node:hover {*/
+            /*fill: blue;*/
+        /*}*/
+        /*.muted {*/
+            /*fill-opacity: 0.1;*/
+            /*stroke-opacity: 0.1;*/
+            /*font-size: 0;*/
+        /*}*/
     </style>
     <div id="graph-container" style="width:100%; height:100%"></div>
 </div>
 
 <script>
 
-    var s,
-        g = {
+    var s;
+
+    var g = {
             nodes: [],
             edges: []
-        },
-        colors = [
-            '#4281a4',
-            '#5da9e9',
-            '#003f91',
-            '#b793ae',
-            '#6d326d'
-        ];
+        };
 
 
     /**
@@ -226,8 +241,7 @@
                 label: request.name,
                 x: request.x,
                 y: request.y,
-                size: request.size,
-                color: colors[Math.floor(Math.random() * colors.length)]
+                size: request.size
             });
             s.refresh();
         }
@@ -281,38 +295,31 @@
             }, 0);
 
         }
-        else if(request.action == 3) {
-            s.startForceAtlas2({worker: true, barnesHutOptimize: false,
-                scalingRatio: 3, slowDown: 5, gravity: 20});
+        else if(request.action == 3)
+        {
+            var getData = getUrlVars();
+            if(getData["graph"] == 2)
+            {
+                s.startForceAtlas2({worker: true, barnesHutOptimize: false,
+                    scalingRatio: 3, slowDown: 5, gravity: 10});
 
-            setTimeout(function () {
-                s.stopForceAtlas2();
-            }, 30000);
+                setTimeout(function () {
+                    s.stopForceAtlas2();
+                }, 15000);
+            }
+            else
+            {
+                s.startForceAtlas2({worker: true, barnesHutOptimize: false,
+                    scalingRatio: 6, slowDown: 4, gravity: 40});
+
+                setTimeout(function () {
+                    s.stopForceAtlas2();
+                }, 30000);
+            }
+
         }
     };
 
-
-
-    /**
-     * jquery stuff for hiding and displaying users when clicked
-     */
-    s.bind('clickNode doubleClickNode rightClickNode', function(e)
-    {
-        $('.sigma-node, .sigma-edge').each(function()
-        {
-            mute(this);
-        });
-
-        var neighbors = s.graph.neighborhood(e.data.node.id);
-        neighbors.nodes.forEach(function(node)
-        {
-            unmute($('[data-node-id="' + node.id + '"]')[0]);
-        });
-
-        neighbors.edges.forEach(function(edge) {
-            unmute($('[data-edge-id="' + edge.id + '"]')[0]);
-        });
-    });
 
     // Binding silly interactions
     function mute(node)
@@ -328,6 +335,30 @@
             node.getAttribute('class').replace(/(\s|^)muted(\s|$)/g, '$2'));
     }
 
+
+    /**
+     * jquery stuff for hiding and displaying users when clicked
+     */
+    s.bind('clickNode doubleClickNode rightClickNode', function(e)
+    {
+        $('.sigma-node, .sigma-edge, .sigma-label').each(function()
+        {
+            mute(this);
+        });
+
+        var neighbors = s.graph.neighborhood(e.data.node.id);
+        neighbors.nodes.forEach(function(node)
+        {
+            unmute($('[data-node-id="' + node.id + '"]')[0]);
+            unmute($('[data-label-target="' + node.id + '"]')[0]);
+        });
+
+        neighbors.edges.forEach(function(edge) {
+            unmute($('[data-edge-id="' + edge.id + '"]')[0]);
+        });
+    });
+
+
     $('.sigma-node').click(function()
     {
         $('.sigma-node, .sigma-edge').each(function()
@@ -340,6 +371,7 @@
         neighbors.nodes.forEach(function(node)
         {
             unmute($('[data-node-id="' + node.id + '"]')[0]);
+            unmute($('[data-label-target="' + node.id + '"]')[0]);
         });
 
         neighbors.edges.forEach(function(edge)
@@ -350,7 +382,7 @@
 
     s.bind('clickStage', function()
     {
-        $('.sigma-node, .sigma-edge').each(function()
+        $('.sigma-node, .sigma-edge, .sigma-label').each(function()
         {
             unmute(this);
         });
