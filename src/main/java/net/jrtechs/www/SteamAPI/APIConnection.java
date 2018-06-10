@@ -124,12 +124,30 @@ public class APIConnection
      */
     public String getPlayerName(String steamid)
     {
-        return ((HashMap<String, String>) new JSONObject(WebScraper
+//        return ((HashMap<String, String>) new JSONObject(WebScraper
+//                .getWebsite(this.baseURL + this.playerInfoURL +
+//                        this.apiKey + "&steamids=" + steamid))
+//                .getJSONObject("response")
+//                .getJSONArray("players")
+//                .toList().stream().findAny().get()).get("personaname");
+
+        JSONObject response = new JSONObject(WebScraper
                 .getWebsite(this.baseURL + this.playerInfoURL +
-                        this.apiKey + "&steamids=" + steamid))
-                .getJSONObject("response")
-                .getJSONArray("players")
-                .toList().stream().findAny().get()).get("personaname");
+                        this.apiKey + "&steamids=" + steamid));
+
+        if(response.has("response"))
+        {
+            response = response.getJSONObject("response");
+            if(response.has("players"))
+            {
+                JSONArray arr = response.getJSONArray("players");
+                if(arr.length() > 0)
+                {
+                    return arr.getJSONObject(0).getString("personname");
+                }
+            }
+        }
+        return null;
     }
 
     public static void main(String[] args)

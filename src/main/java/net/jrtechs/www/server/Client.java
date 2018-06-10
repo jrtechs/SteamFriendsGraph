@@ -26,9 +26,6 @@ public class Client extends Thread
     /** base id to look at */
     private String baseId;
 
-    /** How many layers of friends we are traversing */
-    private int debth;
-
     /** JSONObjects to send the client */
     private List<JSONObject> queue;
 
@@ -47,7 +44,6 @@ public class Client extends Thread
         this.graph = new SteamGraph();
         this.type = type;
         this.baseId = id;
-        this.debth = 1;
         this.queue = new ArrayList<>();
     }
 
@@ -184,7 +180,6 @@ public class Client extends Thread
                         (multiplier/gen)), 30);
             }
 
-
             this.sendEdgeAdd(p, friend);
 
             currentStep += radianStep;
@@ -199,23 +194,30 @@ public class Client extends Thread
     {
         Player b = this.graph.getPlayer(this.baseId);
 
-        List<Player> friends = b.fetchFriends();
-        this.sendPlayerToClient(b, 300, 243, 1, 300);
-
-        double radianStep = Math.PI * 2 / friends.size();
-
-        double currentStep = 0;
-
-
-        for(Player f : b.fetchFriends())
+        if(b == null)
         {
-            f = this.graph.getPlayer(f.getId());
-            this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300),
-                    (int)(243 + Math.sin(currentStep) * 300) ,2, 300);
-
-            currentStep += radianStep;
+            this.sendPlayerNotFound();
         }
-        this.sendFinished();
+        else
+        {
+            List<Player> friends = b.fetchFriends();
+            this.sendPlayerToClient(b, 300, 243, 1, 300);
+
+            double radianStep = Math.PI * 2 / friends.size();
+
+            double currentStep = 0;
+
+
+            for(Player f : b.fetchFriends())
+            {
+                f = this.graph.getPlayer(f.getId());
+                this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300),
+                        (int)(243 + Math.sin(currentStep) * 300) ,2, 300);
+
+                currentStep += radianStep;
+            }
+            this.sendFinished();
+        }
     }
 
 
@@ -229,23 +231,41 @@ public class Client extends Thread
     {
         Player b = this.graph.getPlayer(this.baseId);
 
-        this.sendPlayerToClient(b, 600, 440, 1, 600);
-
-        for(Player f : b.fetchFriends()) //all my friends
+        if(b == null)
         {
-            f = this.graph.getPlayer(f.getId());
-            for(Player ff : f.fetchFriends()) // all my friends friends
+            this.sendPlayerNotFound();
+        }
+        else
+        {
+            this.sendPlayerToClient(b, 600, 440, 1, 600);
+
+            for(Player f : b.fetchFriends()) //all my friends
             {
-                for(Player f2 : b.fetchFriends()) // all my friends
+                f = this.graph.getPlayer(f.getId());
+                for(Player ff : f.fetchFriends()) // all my friends friends
                 {
-                    if(f2.getId().equals(ff.getId()))
+                    for(Player f2 : b.fetchFriends()) // all my friends
                     {
-                        this.sendEdgeAdd(f, ff);
+                        if(f2.getId().equals(ff.getId()))
+                        {
+                            this.sendEdgeAdd(f, ff);
+                        }
                     }
                 }
             }
+            this.sendFinished();
         }
-        this.sendFinished();
+    }
+
+
+    /**
+     * Tells the client that the steam id provided was invalid
+     */
+    private void sendPlayerNotFound()
+    {
+        JSONObject request = new JSONObject();
+        request.put("action", -1);
+        this.sendJSON(request);
     }
 
 

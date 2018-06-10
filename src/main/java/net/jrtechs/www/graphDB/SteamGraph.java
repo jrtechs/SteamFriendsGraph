@@ -279,8 +279,15 @@ public class SteamGraph
         {
             System.out.println("brand spanking new request " + id);
             String name = this.api.getPlayerName(id);
-            this.insertPlayerIntoGraph(id, name);
-            return this.getPlayer(id);
+            if(name == null)
+            {
+                return null;
+            }
+            else
+            {
+                this.insertPlayerIntoGraph(id, name);
+                return this.getPlayer(id);
+            }
         }
         return p;
     }
