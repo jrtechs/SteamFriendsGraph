@@ -187,6 +187,16 @@
     /** Web socket to communicate with the steam friend java server */
     connection = new WebSocket('ws://localhost:4444');
 
+
+    setTimeout(function()
+    {
+        if (this.connection.readyState != 1) {
+            console.log("fuck");
+            document.location.href = "error.html";
+        }
+    }, 3000);
+
+
     /**
      * When the web socket is opened, this function
      * fetches the get data and requests the server
