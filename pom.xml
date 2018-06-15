@@ -60,6 +60,28 @@
       <artifactId>Java-WebSocket</artifactId>
       <version>1.3.0</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.janusgraph/janusgraph-core -->
+    <dependency>
+      <groupId>org.janusgraph</groupId>
+      <artifactId>janusgraph-core</artifactId>
+      <version>0.2.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.janusgraph/janusgraph-hbase -->
+    <dependency>
+      <groupId>org.janusgraph</groupId>
+      <artifactId>janusgraph-hbase</artifactId>
+      <version>0.2.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.janusgraph/janusgraph-es -->
+    <dependency>
+      <groupId>org.janusgraph</groupId>
+      <artifactId>janusgraph-es</artifactId>
+      <version>0.2.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>
