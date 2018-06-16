@@ -79,9 +79,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="graphs.html">Graphs<span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="profile.html">Profile Look-Up</a>
-                </li>
+                <!--<li class="nav-item">-->
+                    <!--<a class="nav-link" href="profile.html">Profile Look-Up</a>-->
+                <!--</li>-->
                 <li class="nav-item">
                     <a class="nav-link" href="faq.html">FAQ</a>
                 </li>
@@ -185,13 +185,13 @@
 
 
     /** Web socket to communicate with the steam friend java server */
-    connection = new WebSocket('ws://localhost:4444');
+    connection = new WebSocket('ws://steam.student.rit.edu:4444');
 
 
     setTimeout(function()
     {
-        if (this.connection.readyState != 1) {
-            console.log("fuck");
+        if (this.connection.readyState != 1)
+        {
             document.location.href = "error.html";
         }
     }, 3000);
