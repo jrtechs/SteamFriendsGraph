@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="css/bootstrap.css" media="screen">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" >    </script>
 </head>
 <body>
 
@@ -91,63 +92,75 @@
         </a>
     </div>
 
-    <h1 id="steamgraphanalysis">Steam Graph Analysis</h1>
 
-    <p>This is a project that I threw together during the weekend to play around with
-        gremlin graph database. Currently this project scrapes the steam API for friends
-        and their friends which can be used to generate a graph. This information is stored
-        locally in a gremlin server and is then sent to the client via a web socket. </p>
+    <div class="row text-center">
+        <div class="col text-center"><h1>Steam Graph Analysis</h1></div>
+    </div>
 
-    <p><img src="Diagram.svg" alt="Diagram" width="100%" /></p>
+    <div class="row">
+        <div class="col-md-4">
+        <p>This is a project that I threw together during a weekend to play around with
+            graph databases. This project uses the steam api to acquire people's friends lists;
+            this information is stored locally in a gremlin database. The client is sent information to
+            render on their javascript graph as it is pulled from the graph database via a web socket.
+        </p>
+            <center>
+                <h3>Try it out!</h3>
+                <a href="graphs.html" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Make a Graph</a>
+            </center>
+        </div>
 
+        <div class="col-md-8">
+            <img src="Diagram.svg" alt="Diagram" width="100%" />
+        </div>
+
+    </div>
     <div class="d-flex justify-content-center">
         <p><iframe width="560" height="315" src="https://www.youtube.com/embed/WJfo9bU0nH8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
     </div>
 
-    <p>This project is in the VERY early stages of development and is far from finished.
-        If you are lucky, you will find it live at <a href="http://jrtechs.student.rit.edu/friendsOfFriends.html">http://jrtechs.student.rit.edu/friendsOfFriends.html</a>.
-        It is still being actively developed and does not have permanent hosting so there is a %60
-        chance at any time that you will be able to access it. </p>
 
-    <p><img src="exampleGraph.png" alt="Graph" /></p>
-
-    <h1 id="bugs">Bugs</h1>
-
-    <ul>
-
-        <li>Tends to crash w/o telling user if you provide an invalid steam id</li>
-    </ul>
-
-    <h1 id="todo">TODO</h1>
-
-    <ul>
-        <li>Include a steam name to steam id lookup</li>
-
-        <li>Dockerize this entire environment</li>
-
-        <li>Connect the gremlin/janus server to a HBase server for persistent storage</li>
-
-        <li>Make the graphs look better -- possibly switch from sigma.js to d3</li>
-
-        <li>Get the java web socket to work with ssh -- currently does not work with wss</li>
-
-        <li>Make more graphs to provide more insights
-
+    <div class="row">
+        <div class="col-m-6">
+            <h1 id="todo">Future Additions</h1>
 
             <ul>
+                <li>Include a steam name to steam id lookup</li>
 
-                <li>Most common friends of friends -- will show you people you may know</li>
+                <li>Dockerize this entire environment</li>
 
-                <li>Graph of a larger chunk of the steam community</li>
+                <li>Connect the gremlin/janus server to a HBase server for persistent storage</li>
 
-                <li>...</li></ul>
-        </li>
+                <li>Get the java web socket to work with ssh -- currently does not work with wss</li>
 
-        <li>Write more documentation on how the system as a whole works.</li>
+                <li>Make more graphs to provide more insights
 
-        <li>Write blog post on what I learned during this project.   </li>
-    </ul>
+                    <ul>
 
+                        <li>Most common friends of friends -- will show you people you may know</li>
+
+                        <li>Graph of a larger chunk of the steam community</li>
+
+                        <li>Graphs based on common games</li>
+
+                        <li>...</li>
+                    </ul>
+                </li>
+
+                <li>Write more documentation on how the system as a whole works.</li>
+            </ul>
+
+            <p>If you are interested in this project, or want to help work on it, check it out
+                on <a href="https://github.com/jrtechs/SteamFriendsGraph">github</a>.</p>
+        </div>
+        <div class="col-m-6 w-50" id="repo1">
+            <script src="src/RepoJS/repo.js"></script>
+            <script>
+                $('#repo1').repo({ user: 'jrtechs', name: 'SteamFriendsGraph' });
+            </script>
+        </div>
+
+    </div>
 </div>
 
 
