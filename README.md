@@ -8,19 +8,15 @@ locally in a gremlin server and is then sent to the client via a web socket.
 ![Diagram](website/Diagram.svg)
 
 
-[Video Of Friends of Friends Graph](https://www.youtube.com/watch?v=WJfo9bU0nH8)
+[Video Of Friends of Friends Graph](https://www.youtube.com/watch?v=DoDaHmyIPvQ)
 
 
 This project is in the VERY early stages of development and is far from finished.
-If you are lucky, you will find it live at [http://jrtechs.student.rit.edu/friendsOfFriends.html](http://jrtechs.student.rit.edu/friendsOfFriends.html).
+If you are lucky, you will find it live at [http://steam.jrtechs.net](http://steam.jrtechs.net).
 It is still being actively developed and does not have permanent hosting so there is a %60
 chance at any time that you will be able to access it. 
 
-![Graph](website/exampleGraph.png)
-
-
-# Bugs
-* Tends to crash w/o telling user if you provide an invalid steam id
+![Graph](website/img/jrtechs2.png)
 
 
 # TODO
