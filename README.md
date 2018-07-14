@@ -19,6 +19,18 @@ chance at any time that you will be able to access it.
 ![Graph](website/img/jrtechs2.png)
 
 
+## Running this Project
+* First you need to obtain a steam api key from [https://steamcommunity.com/dev/apikey](steam's website).
+* Place the api key in the SteamAPIKey.json file under the conf/ folder.
+* Spin up a local gremlin server to connect to.
+* Install and configure Maven if you don't already have it installed.
+* Run the App.java class either in a java IDE which supports maven (for dependencies), or build this
+project into a jar and run it. I have a buildJar.sh which builds a jar file to use -- please note that
+you still need to have maven installed. There is also a run.sh file which will run the jar file once
+you place it in the same directory as the run script.
+* Open graphs.html under the website/ folder in your web browser.
+
+
 # TODO
 * Include a steam name to steam id lookup
 * Dockerize this entire environment
