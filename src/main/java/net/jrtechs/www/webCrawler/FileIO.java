@@ -1,7 +1,12 @@
 package net.jrtechs.www.webCrawler;
 
-import com.google.gson.Gson;
 import net.jrtechs.www.server.Player;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -15,10 +20,6 @@ public class FileIO
     /** Base directory to store all the data */
     private String baseFilaPath;
 
-
-    /** Object  used to convert objects to json strings */
-    private final Gson gson;
-
     /**
      * Initalizes the base directory
      * @param basePath
@@ -26,7 +27,6 @@ public class FileIO
     public FileIO(String basePath)
     {
         this.baseFilaPath = basePath;
-        this.gson = new Gson();
     }
 
 
@@ -39,7 +39,24 @@ public class FileIO
      */
     public boolean playerExists(String id)
     {
-        return false;
+        String fileName = baseFilaPath + id + ".json";
+
+        return new File(fileName).isFile();
+    }
+
+
+    /**
+     * Returns the date in a form which is easy to read and write
+     * to from a file.
+     *
+     * @return
+     */
+    private String getDate()
+    {
+        String pattern = "yyyy-MM-dd";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+        return simpleDateFormat.format(new Date());
     }
 
 
@@ -48,12 +65,15 @@ public class FileIO
      *
      * @param player
      */
-    public void writeToFile(Player player)
+    public void writeToFile(Player player, List<String> friendIDS)
     {
-        String data = gson.toJson(player);
+        JSONObject object = new JSONObject();
+        object.put("name", player.getName());
+        object.put("date", getDate());
+        object.put("friends", friendIDS);
 
         String fileName = baseFilaPath + player.getId() + ".json";
 
-        SteamdFileWriter.writeToFile(data, fileName);
+        SteamdFileWriter.writeToFile(object.toString(4), fileName);
     }
 }

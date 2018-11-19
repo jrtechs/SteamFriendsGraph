@@ -1,5 +1,6 @@
 package net.jrtechs.www.SteamAPI;
 
+import net.jrtechs.www.server.Player;
 import net.jrtechs.www.utils.ConfigLoader;
 
 import net.jrtechs.www.utils.WebScraper;
@@ -107,12 +108,33 @@ public class APIConnection
             for(int i = 0; i < names.length(); i++)
             {
                 JSONObject player = names.getJSONObject(i);
-                System.out.println(player);
                 map.put(player.getString("steamid"),
                         player.getString("personaname"));
             }
         }
         return map;
+    }
+
+
+    /**
+     * Wrapper for getNames which returns a list of players instead
+     * of a map from id's to names
+     *
+     * @param ids
+     * @return
+     */
+    public List<Player> getFullPlayers(List<String> ids)
+    {
+        Map<String, String> map = this.getNames(ids);
+
+        List<Player> players = new ArrayList<>();
+
+        for(String id: map.keySet())
+        {
+            players.add(new Player(map.get(id),id));
+        }
+
+        return players;
     }
 
 
@@ -142,6 +164,7 @@ public class APIConnection
         }
         return null;
     }
+
 
     public static void main(String[] args)
     {
