@@ -195,8 +195,8 @@ public class SteamGraph
     /**
      * Fetches a list of friends from the graph database
      *
-     * @param id
-     * @return
+     * @param id steam id
+     * @return list of friends
      */
     private List<Player> getFriendsFromGraph(String id)
     {

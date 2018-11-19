@@ -1,6 +1,8 @@
 package net.jrtechs.www.server;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -20,6 +22,9 @@ public class Player
     /** List of friends the player has */
     private List<Player> friends;
 
+    /** Time which the player was crawled */
+    private Date date;
+
 
     /**
      * Sets the name and id of the player
@@ -32,8 +37,18 @@ public class Player
         this.name = name;
         this.id = id;
         this.friends = null;
+        this.date = new Date();
+
     }
 
+
+    public List<Player> getFriends() {
+        return friends;
+    }
+
+    public Date getDate() {
+        return date;
+    }
 
     /**
      * Returns a list of all the friends of a specific player
