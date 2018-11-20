@@ -55,6 +55,7 @@ public class APIThrottler
      */
     public void wait(int numofQueries)
     {
+        System.out.println("Hold the door:" + numofQueries);
         int totalWaitTime = numofQueries * waitTimePerQuerie;
 
         while(!queryAvailable(totalWaitTime))

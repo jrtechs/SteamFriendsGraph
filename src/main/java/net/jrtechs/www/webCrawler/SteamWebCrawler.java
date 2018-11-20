@@ -3,17 +3,14 @@ package net.jrtechs.www.webCrawler;
 import net.jrtechs.www.SteamAPI.APIConnection;
 import net.jrtechs.www.server.Player;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 
 /**
  * Main class for digging up the entire
  * steam network.
  *
- * @author Jeffery Russell
+ * @author Jeffery Russell 11-18-18
  */
 public class SteamWebCrawler
 {
@@ -28,7 +25,17 @@ public class SteamWebCrawler
     private FileIO fileIO;
 
     /** Queue used for a BFS search */
-    private Queue<Player> downlaodQueue;
+    private LinkedList<Player> downlaodQueue;
+
+    /** Players which have been detected by
+     * our search and currently in a queue
+     * or has already been processed*/
+    private HashSet<String> visited;
+
+    /** List of players which we have accessed
+     * in the steam network, but, have no clue what
+     * their name is*/
+    private LinkedList<String> namelessQueue;
 
 
     /**
@@ -43,7 +50,66 @@ public class SteamWebCrawler
         this.fileIO = new FileIO("/media/jeff/A4BA9239BA920846/steamData/");
 
         this.downlaodQueue = new LinkedList<>();
+
+        visited = new HashSet<>();
+
+        namelessQueue = new LinkedList<>();
     }
+
+
+    /**
+     * If the download queue is empty, this will
+     * look up the names of the first 100 players in the
+     * nameless queue and add them to download queue.
+     */
+    private void shiftNamelessToDownload()
+    {
+        if(this.downlaodQueue.isEmpty() && !this.namelessQueue.isEmpty())
+        {
+            List<String> winners = new ArrayList<>();
+            for(int i = 0; i < (100 < namelessQueue.size()? 100: namelessQueue.size()); i++)
+            {
+                winners.add(this.namelessQueue.remove());
+            }
+            List<Player> namedPlayers = connection.getFullPlayers(winners);
+            this.throttler.wait(1);
+            downlaodQueue.addAll(namedPlayers);
+        }
+    }
+
+
+    /**
+     * Does one of the following three actions for each
+     * of the steam members in the list:
+     * 1: Ignore- already has been queued by program
+     * 2: Add to nameless queue -- doesn't have name yet
+     * 3: Add to download queue -- already on HHD but needed for
+     * the search algo to work.
+     *
+     * @param ids list of steam ids
+     */
+    private void queueUpPlayers(List<String> ids)
+    {
+        for(String s: ids)
+        {
+            if(!visited.contains(s))
+            {
+                if(fileIO.playerExists(s))
+                {
+                    downlaodQueue.add(new Player("dummy", s));
+                }
+                else
+                {
+                    namelessQueue.add(s);
+                }
+                visited.add(s);
+            }
+        }
+        System.out.println("Download Queue: " + downlaodQueue.size());
+        System.out.println("Nameless Queue: " + namelessQueue.size());
+    }
+
+
 
 
     /**
@@ -55,29 +121,21 @@ public class SteamWebCrawler
         {
             Player current = downlaodQueue.remove();
 
-            List<String> currentFriends = connection.getFriends(current.getId());
-
-            List<String> neededFriends = new ArrayList<>();
-
-            currentFriends.forEach(s ->
-            {
-                if(!fileIO.playerExists(s))
-                    neededFriends.add(s);
-            });
-
-            connection.getFullPlayers(neededFriends).forEach(f->
-            {
-                downlaodQueue.add(f);
-            });
-
-
-            int queriesRan = neededFriends.size()/100 + 2;
-            this.throttler.wait(queriesRan);
-
+            List<String> currentFriends;
             if(!fileIO.playerExists(current.getId()))
             {
+                this.throttler.wait(1);
+                currentFriends = connection.getFriends(current.getId());
                 fileIO.writeToFile(current, currentFriends);
             }
+            else
+            {
+                currentFriends = fileIO.readFriends(current.getId());
+            }
+
+            queueUpPlayers(currentFriends);
+
+            shiftNamelessToDownload();
         }
     }
 

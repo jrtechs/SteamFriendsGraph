@@ -1,10 +1,12 @@
 package net.jrtechs.www.webCrawler;
 
 import net.jrtechs.www.server.Player;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +29,12 @@ public class FileIO
     public FileIO(String basePath)
     {
         this.baseFilaPath = basePath;
+    }
+
+
+    private String getURL(String id)
+    {
+        return baseFilaPath + id + ".json";
     }
 
 
@@ -57,6 +65,28 @@ public class FileIO
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
         return simpleDateFormat.format(new Date());
+    }
+
+
+    public List<String> readFriends(String id)
+    {
+        String fileContents = FileReader.readFile(this.getURL(id));
+
+        JSONObject player = new JSONObject(fileContents);
+
+        if(player.has("friends"))
+        {
+            List<String> list = new ArrayList<>();
+
+            JSONArray jsonArray = player.getJSONArray("friends");
+
+            for(int i = 0 ; i < jsonArray.length();i++)
+            {
+                list.add(jsonArray.getString(i));
+            }
+            return list;
+        }
+        return new ArrayList<>();
     }
 
 

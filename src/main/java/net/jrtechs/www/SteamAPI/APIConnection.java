@@ -69,7 +69,8 @@ public class APIConnection
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            System.out.println("Friends not public :(");
+            //ex.printStackTrace();
         }
 
         return friendsId;
@@ -108,8 +109,12 @@ public class APIConnection
             for(int i = 0; i < names.length(); i++)
             {
                 JSONObject player = names.getJSONObject(i);
-                map.put(player.getString("steamid"),
-                        player.getString("personaname"));
+
+                if(player.has("steamid") && player.has("personaname"))
+                {
+                    map.put(player.getString("steamid"),
+                            player.getString("personaname"));
+                }
             }
         }
         return map;
