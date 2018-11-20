@@ -1,5 +1,8 @@
 package net.jrtechs.www.utils;
 
+import net.jrtechs.www.SteamAPI.ConnectionErrors;
+import net.jrtechs.www.SteamAPI.SteamConnectionException;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,22 +20,39 @@ public class WebScraper
      * @param link to open
      * @return source code of website as a single string
      */
-    public static String getWebsite(String link)
+    public static String getWebsite(String link) throws SteamConnectionException
     {
         try
         {
             URL url = new URL(link);
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            int code = connection.getResponseCode();
+
+            switch (code)
+            {
+                case 401:
+                    throw new SteamConnectionException(ConnectionErrors.RESTRICTED);
+                case 500:
+                    throw new SteamConnectionException(ConnectionErrors.CONNECTION);
+                default:
+            }
 
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(url.openStream())
             );
             return WebScraper.getBufferedReaderData(br);
         }
+        catch (SteamConnectionException e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new SteamConnectionException(ConnectionErrors.CONNECTION);
         }
-        return "";
     }
 
 

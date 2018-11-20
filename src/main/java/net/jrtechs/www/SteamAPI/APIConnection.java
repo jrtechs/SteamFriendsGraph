@@ -4,6 +4,7 @@ import net.jrtechs.www.server.Player;
 import net.jrtechs.www.utils.ConfigLoader;
 
 import net.jrtechs.www.utils.WebScraper;
+import net.jrtechs.www.webCrawler.APIThrottler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -58,9 +59,43 @@ public class APIConnection
 
         try
         {
-            new JSONObject(WebScraper
-                    .getWebsite(this.baseURL + this.friendListURL +
-                            this.apiKey + "&steamid=" + steamid))
+            String apiData = "";
+            try
+            {
+                apiData = WebScraper
+                        .getWebsite(this.baseURL + this.friendListURL +
+                                this.apiKey + "&steamid=" + steamid);
+            }
+            catch (SteamConnectionException e)
+            {
+                switch (e.getError())
+                {
+                    case RESTRICTED:
+                    {
+                        //This is fine
+                        System.out.println("Private profile: " + steamid);
+                        return friendsId;
+                    }
+                    case CONNECTION:
+                    {
+                        //spooky 500 error :(
+                        new APIThrottler().wait(120);
+
+                        try
+                        {
+                            apiData = WebScraper
+                                    .getWebsite(this.baseURL + this.friendListURL +
+                                            this.apiKey + "&steamid=" + steamid);
+                        }
+                        catch (SteamConnectionException exception2)
+                        {
+                            throw new Exception("Everything is dead");
+                        }
+                    }
+                }
+            }
+
+            new JSONObject(apiData)
                     .getJSONObject("friendslist")
                     .getJSONArray("friends").toList()
                     .forEach(f->
@@ -69,8 +104,8 @@ public class APIConnection
         }
         catch (Exception ex)
         {
-            System.out.println("Friends not public :(");
-            //ex.printStackTrace();
+            ex.printStackTrace();
+            System.exit(-1);
         }
 
         return friendsId;
@@ -103,8 +138,17 @@ public class APIConnection
             }
 
             System.out.println(queryUrl);
-            JSONArray names = new JSONObject(WebScraper.getWebsite(queryUrl))
-                    .getJSONObject("response").getJSONArray("players");
+            JSONArray names;
+            try
+            {
+                names = new JSONObject(WebScraper.getWebsite(queryUrl))
+                        .getJSONObject("response").getJSONArray("players");
+            }
+            catch (SteamConnectionException ex)
+            {
+                //meh
+                return map;
+            }
 
             for(int i = 0; i < names.length(); i++)
             {
@@ -143,6 +187,7 @@ public class APIConnection
     }
 
 
+
     /**
      * Returns the name of the player with a specific steam id
      *
@@ -151,9 +196,18 @@ public class APIConnection
      */
     public String getPlayerName(String steamid)
     {
-        JSONObject response = new JSONObject(WebScraper
-                .getWebsite(this.baseURL + this.playerInfoURL +
-                        this.apiKey + "&steamids=" + steamid));
+        JSONObject response;
+        try
+        {
+            response = new JSONObject(WebScraper
+                    .getWebsite(this.baseURL + this.playerInfoURL +
+                            this.apiKey + "&steamids=" + steamid));
+        }
+        catch (SteamConnectionException ex)
+        {
+            return "";
+        }
+
 
         if(response.has("response"))
         {
