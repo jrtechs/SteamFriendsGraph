@@ -64,7 +64,9 @@ public class SteamWebCrawler
      */
     private void shiftNamelessToDownload()
     {
-        if(this.downlaodQueue.isEmpty() && !this.namelessQueue.isEmpty())
+        //this is a while instead of if because the getfull players query fails
+        //once in a blue moon
+        while(this.downlaodQueue.isEmpty() && !this.namelessQueue.isEmpty())
         {
             List<String> winners = new ArrayList<>();
             for(int i = 0; i < (100 < namelessQueue.size()? 100: namelessQueue.size()); i++)

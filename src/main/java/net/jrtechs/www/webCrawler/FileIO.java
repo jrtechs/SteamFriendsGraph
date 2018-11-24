@@ -2,6 +2,7 @@ package net.jrtechs.www.webCrawler;
 
 import net.jrtechs.www.server.Player;
 import net.jrtechs.www.utils.FileReader;
+import net.jrtechs.www.utils.WrappedFileWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,7 +22,7 @@ import java.util.List;
 public class FileIO
 {
     /** Base directory to store all the data */
-    private String baseFilaPath;
+    private String baseFilePath;
 
     /**
      * Initalizes the base directory
@@ -29,7 +30,7 @@ public class FileIO
      */
     public FileIO(String basePath)
     {
-        this.baseFilaPath = basePath;
+        this.baseFilePath = basePath;
     }
 
 
@@ -42,7 +43,7 @@ public class FileIO
      */
     private String getURL(String id)
     {
-        return baseFilaPath + id + ".json";
+        return baseFilePath + id + ".json";
     }
 
 
@@ -55,7 +56,7 @@ public class FileIO
      */
     public boolean playerExists(String id)
     {
-        String fileName = baseFilaPath + id + ".json";
+        String fileName = baseFilePath + id + ".json";
 
         return new File(fileName).isFile();
     }
@@ -119,8 +120,8 @@ public class FileIO
         object.put("date", getDate());
         object.put("friends", friendIDS);
 
-        String fileName = baseFilaPath + player.getId() + ".json";
+        String fileName = baseFilePath + player.getId() + ".json";
 
-        SteamdFileWriter.writeToFile(object.toString(4), fileName);
+        WrappedFileWriter.writeToFile(object.toString(4), fileName);
     }
 }

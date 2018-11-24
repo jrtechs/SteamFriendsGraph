@@ -45,7 +45,6 @@ public class APIThrottler
         long currTime = getCurrentTimeInMS();
 
         return currTime > lastQuery + waitTime;
-
     }
 
 
