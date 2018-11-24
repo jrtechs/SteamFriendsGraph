@@ -36,7 +36,14 @@ public class WebScraper
                 case 401:
                     throw new SteamConnectionException(ConnectionErrors.RESTRICTED);
                 case 500:
+                case 503:
                     throw new SteamConnectionException(ConnectionErrors.CONNECTION);
+                case 429:
+                    throw new SteamConnectionException(ConnectionErrors.RATE_LIMITED);
+                case 404:
+                    throw new SteamConnectionException(ConnectionErrors.NOT_FOUND);
+                case 400:
+                    throw new SteamConnectionException(ConnectionErrors.BAD_REQUEST);
                 default:
             }
 
@@ -99,7 +106,8 @@ public class WebScraper
      * @throws IOException -- with br.readLine()
      */
     private static String getBufferedReaderData(BufferedReader br)
-            throws IOException {
+            throws IOException
+    {
         String html = "";
         String line;
         while ((line = br.readLine()) != null)

@@ -48,6 +48,68 @@ public class APIConnection
 
 
     /**
+     * Makes a call to the steam api using the requested url and does
+     * some error handling where it will re-request data from the steam
+     * api if it simply throws an internal error.
+     *
+     * @param url address to download data with
+     * @return string of the data returned
+     */
+    public String querySteamAPI(String url)
+    {
+        boolean downloaded = false;
+        String apiData = "";
+        while(!downloaded)
+        {
+            try
+            {
+                apiData =  WebScraper.getWebsite(url);
+                downloaded = true;
+            }
+            catch (SteamConnectionException e)
+            {
+                switch (e.getError())
+                {
+                    case RESTRICTED:
+                    {
+                        //This is fine
+                        System.out.println("Private profile: ");
+                        System.out.println(url);
+                        return "";
+                    }
+                    case CONNECTION:
+                    {
+                        //spooky 500 error :(
+                        //I don't know why but, steam throws 1-3 of these per day
+                        System.out.println("Spooky steam API error");
+                        new APIThrottler().wait(30);
+                    }
+                    case RATE_LIMITED:
+                    {
+                        //hasn't happened yet
+                        System.out.println("Oof, we are being throttled");
+                        new APIThrottler().wait(300);
+                    }
+                    case FORBIDDEN:
+                    {
+                        System.out.println("Check your API key.");
+                        System.exit(-1);
+                    }
+                    case BAD_REQUEST:
+                    {
+                        System.out.println("BAD REQUEST:");
+                        System.out.println(url);
+                        System.out.println("Please modify your query.");
+                        return "";
+                    }
+                }
+            }
+        }
+        return apiData;
+    }
+
+
+    /**
      * Returns a list of the UIDs of all the players friends
      *
      * @param steamid
@@ -57,55 +119,22 @@ public class APIConnection
     {
         List<String> friendsId = new ArrayList<>();
 
-        try
+        String apiData = this.querySteamAPI(this.baseURL + this.friendListURL +
+                this.apiKey + "&steamid=" + steamid);
+
+        JSONObject object = new JSONObject(apiData);
+
+        if(object.has("friendslist"))
         {
-            String apiData = "";
-            try
-            {
-                apiData = WebScraper
-                        .getWebsite(this.baseURL + this.friendListURL +
-                                this.apiKey + "&steamid=" + steamid);
-            }
-            catch (SteamConnectionException e)
-            {
-                switch (e.getError())
-                {
-                    case RESTRICTED:
-                    {
-                        //This is fine
-                        System.out.println("Private profile: " + steamid);
-                        return friendsId;
-                    }
-                    case CONNECTION:
-                    {
-                        //spooky 500 error :(
-                        new APIThrottler().wait(120);
-
-                        try
-                        {
-                            apiData = WebScraper
-                                    .getWebsite(this.baseURL + this.friendListURL +
-                                            this.apiKey + "&steamid=" + steamid);
-                        }
-                        catch (SteamConnectionException exception2)
-                        {
-                            throw new Exception("Everything is dead");
-                        }
-                    }
-                }
-            }
-
-            new JSONObject(apiData)
-                    .getJSONObject("friendslist")
-                    .getJSONArray("friends").toList()
-                    .forEach(f->
-                            friendsId.add(((HashMap<String, String>)(f)).get("steamid"))
-                    );
+            object.getJSONObject("friendslist")
+                .getJSONArray("friends").toList()
+                .forEach(f->
+                        friendsId.add(((HashMap<String, String>)(f)).get("steamid"))
+                );
         }
-        catch (Exception ex)
+        else
         {
-            ex.printStackTrace();
-            System.exit(-1);
+            return friendsId;
         }
 
         return friendsId;
@@ -139,14 +168,18 @@ public class APIConnection
 
             System.out.println(queryUrl);
             JSONArray names;
-            try
+
+            String apiResult = this.querySteamAPI(queryUrl);
+
+            JSONObject object = new JSONObject(apiResult);
+
+            if(object.has("response"))
             {
-                names = new JSONObject(WebScraper.getWebsite(queryUrl))
-                        .getJSONObject("response").getJSONArray("players");
+                names = object.getJSONObject("response").getJSONArray("players");
             }
-            catch (SteamConnectionException ex)
+            else
             {
-                //meh
+                //eh
                 return map;
             }
 

@@ -1,6 +1,7 @@
 package net.jrtechs.www.webCrawler;
 
 import net.jrtechs.www.server.Player;
+import net.jrtechs.www.utils.FileReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,6 +33,13 @@ public class FileIO
     }
 
 
+    /**
+     * Helper function to piece together the naming convention
+     * for the JSON file.
+     *
+     * @param id player id
+     * @return path of the file being saved
+     */
     private String getURL(String id)
     {
         return baseFilaPath + id + ".json";
@@ -42,8 +50,8 @@ public class FileIO
      * Determines if we already have the player
      * on disk.
      *
-     * @param id
-     * @return
+     * @param id steam id of the player
+     * @return if the file exists on disk
      */
     public boolean playerExists(String id)
     {
@@ -68,6 +76,15 @@ public class FileIO
     }
 
 
+    /**
+     * Reads all the friends from a player on the disk
+     *
+     * ** This should only be called if we know the player
+     * is stored on the disk.
+     *
+     * @param id steam id of the player
+     * @return list of all their friends.
+     */
     public List<String> readFriends(String id)
     {
         String fileContents = FileReader.readFile(this.getURL(id));

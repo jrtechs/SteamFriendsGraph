@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
 public class ConfigLoader
 {
     /** Json object which stores configuration contents **/
-    JSONObject config;
+    private JSONObject config;
 
 
     /**

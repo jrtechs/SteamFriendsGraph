@@ -1,10 +1,9 @@
-package net.jrtechs.www.webCrawler;
+package net.jrtechs.www.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
