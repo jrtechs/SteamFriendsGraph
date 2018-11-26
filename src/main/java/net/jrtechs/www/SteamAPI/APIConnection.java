@@ -83,12 +83,14 @@ public class APIConnection
                         //I don't know why but, steam throws 1-3 of these per day
                         System.out.println("Spooky steam API error");
                         new APIThrottler().wait(30);
+                        break;
                     }
                     case RATE_LIMITED:
                     {
                         //hasn't happened yet
                         System.out.println("Oof, we are being throttled");
                         new APIThrottler().wait(300);
+                        break;
                     }
                     case FORBIDDEN:
                     {
