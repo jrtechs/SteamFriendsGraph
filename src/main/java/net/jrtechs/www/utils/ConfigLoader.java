@@ -59,6 +59,7 @@ public class ConfigLoader
                     jsonString += line;
                 }
             }
+            br.close();
         }
         catch(Exception e)
         {

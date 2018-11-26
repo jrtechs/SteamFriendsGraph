@@ -114,6 +114,7 @@ public class WebScraper
         {
             html += line;
         }
+        br.close();
         return html;
     }
 }

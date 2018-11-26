@@ -122,6 +122,9 @@ public class APIConnection
         String apiData = this.querySteamAPI(this.baseURL + this.friendListURL +
                 this.apiKey + "&steamid=" + steamid);
 
+        if(apiData.equals(""))
+            return friendsId; //private url
+
         JSONObject object = new JSONObject(apiData);
 
         if(object.has("friendslist"))
@@ -170,6 +173,9 @@ public class APIConnection
             JSONArray names;
 
             String apiResult = this.querySteamAPI(queryUrl);
+
+            if(apiResult.equals(""))
+                return map;
 
             JSONObject object = new JSONObject(apiResult);
 
@@ -262,6 +268,7 @@ public class APIConnection
     {
         APIConnection con = new APIConnection();
 
+        //steam id of jrtechs
         con.getFriends("76561198188400721").forEach(System.out::println);
 
         System.out.println(con.getPlayerName("76561198188400721"));

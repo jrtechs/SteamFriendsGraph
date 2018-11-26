@@ -57,7 +57,6 @@ public class FileIO
     public boolean playerExists(String id)
     {
         String fileName = baseFilePath + id + ".json";
-
         return new File(fileName).isFile();
     }
 
