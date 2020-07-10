@@ -38,15 +38,17 @@ public class Player
         this.id = id;
         this.friends = null;
         this.date = new Date();
-
+        this.friends = new ArrayList<>();
     }
 
 
-    public List<Player> getFriends() {
+    public List<Player> getFriends()
+    {
         return friends;
     }
 
-    public Date getDate() {
+    public Date getDate()
+    {
         return date;
     }
 
@@ -90,6 +92,6 @@ public class Player
     @Override
     public String toString()
     {
-        return "Name: " + this.name + " id: " + this.id;
+        return "Name: " + this.name + " id: " + this.id + " " + friends.size();
     }
 }

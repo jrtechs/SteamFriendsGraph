@@ -1,6 +1,7 @@
 package net.jrtechs.www.graphDB;
 
-import org.apache.tinkerpop.gremlin.driver.ResultSet;
+
+import org.apache.tinkerpop.gremlin.process.remote.RemoteConnection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.stream.IntStream;
 public class GremlinConsole
 {
     /** Connection to graph server **/
-    private RemoteConnection connection;
+    private GraphConnection connection;
 
 
     /**
@@ -25,7 +26,7 @@ public class GremlinConsole
      */
     public GremlinConsole()
     {
-        this.connection = new RemoteConnection();
+        this.connection = new GraphConnection();
     }
 
 
@@ -34,7 +35,7 @@ public class GremlinConsole
      *
      * @return
      */
-    public RemoteConnection getConnection()
+    public GraphConnection getConnection()
     {
         return this.connection;
     }
@@ -68,15 +69,17 @@ public class GremlinConsole
                     System.exit(0);
                 }
 
-                ResultSet set = this.connection.queryGraph(input);
-                try
-                {
-                    set.forEach(System.out::println);
-                }
-                catch (Exception ex)
-                {
-                    ex.printStackTrace();
-                }
+
+
+//                ResultSet set = this.connection.queryGraph(input);
+//                try
+//                {
+//                    set.forEach(System.out::println);
+//                }
+//                catch (Exception ex)
+//                {
+//                    ex.printStackTrace();
+//                }
 
             }
 
@@ -113,17 +116,24 @@ public class GremlinConsole
      *
      * @param args
      */
-    public static void main(String args[])
+    public static void main(String args[]) throws Exception
     {
-        GremlinConsole console = new GremlinConsole();
+//        GremlinConsole console = new GremlinConsole();
+//
+//        //don't worry about this lambda
+//        IntStream.range(0, args.length)
+//                .forEach(i-> console.getConnection()
+//                        .queryGraph(args[i])
+//                        .forEach((System.out::println)));
+//
+//        console.run();
 
-        //don't worry about this lambda
-        IntStream.range(0, args.length)
-                .forEach(i-> console.getConnection()
-                        .queryGraph(args[i])
-                        .forEach((System.out::println)));
+        GraphConnection con = new GraphConnection();
 
-        console.run();
+        System.out.println(con.getTraversal().E().toList()
+            );
+        System.out.println(con.getTraversal().V().toList()
+        );
+        con.closeConnection();
     }
-
 }
