@@ -1,9 +1,8 @@
 package net.jrtechs.www.server;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -13,6 +12,15 @@ import java.util.List;
  */
 public class Player
 {
+    public static String KEY_STEAM_ID = "steamid";
+    public static String KEY_REAL_NAME = "realname";
+    public static String KEY_TIME_CREATED = "timecreated";
+    public static String KEY_AVATAR = "avatarfull";
+    public static String KEY_USERNAME = "personaname";
+
+    public static String KEY_FRIENDS = "friends";
+
+
     /** Name of the player **/
     private String name;
 
@@ -22,8 +30,11 @@ public class Player
     /** List of friends the player has */
     private List<Player> friends;
 
-    /** Time which the player was crawled */
-    private Date date;
+    private String realName;
+
+    private String avatar;
+
+    private Integer timeCreated;
 
 
     /**
@@ -32,35 +43,34 @@ public class Player
      * @param name
      * @param id
      */
-    public Player(String name, String id)
+    public Player(String name, String id,
+                  String realName, Integer timeCreated,
+                  String avatar)
     {
         this.name = name;
         this.id = id;
-        this.friends = null;
-        this.date = new Date();
+        this.realName = realName;
+        this.timeCreated = timeCreated;
+        this.avatar = avatar;
         this.friends = new ArrayList<>();
     }
 
+
+    public Player(Map<String, Object> apiInfo)
+    {
+        this.id = ((List<Object>) apiInfo.get(Player.KEY_STEAM_ID)).get(0).toString();
+        this.name = ((List<Object>) apiInfo.get(Player.KEY_USERNAME)).get(0).toString();
+        this.realName = ((List<Object>) apiInfo.getOrDefault(Player.KEY_REAL_NAME, "")).get(0).toString();
+        this.avatar = ((List<Object>) apiInfo.getOrDefault(Player.KEY_AVATAR, "")).get(0).toString();
+        this.timeCreated = (Integer)((List<Object>)apiInfo.get(KEY_TIME_CREATED)).get(0);
+        this.friends = new ArrayList<>();
+    }
 
     public List<Player> getFriends()
     {
         return friends;
     }
 
-    public Date getDate()
-    {
-        return date;
-    }
-
-    /**
-     * Returns a list of all the friends of a specific player
-     *
-     * @return
-     */
-    public List<Player> fetchFriends()
-    {
-        return this.friends;
-    }
 
     /**
      * Getter for display name of player
@@ -88,10 +98,32 @@ public class Player
         this.friends = friends;
     }
 
+    public String getRealName()
+    {
+        return this.realName;
+    }
+
+
+    public String getAvatar()
+    {
+        return this.avatar;
+    }
+
+
+    public Integer getTimeCreated()
+    {
+        return this.timeCreated;
+    }
+
 
     @Override
     public String toString()
     {
-        return "Name: " + this.name + " id: " + this.id + " " + friends.size();
+        return "Name: " + this.name +
+                " id: " + this.id +
+                " friend count " + friends.size() +
+                " avatar:" + this.avatar +
+                " real name " + this.realName +
+                " created " + this.timeCreated;
     }
 }

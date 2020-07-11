@@ -159,7 +159,7 @@ public class Client extends Thread
             sendNodeAdd(p, x, y, 150);
         }
 
-        List<Player> friends = p.fetchFriends();
+        List<Player> friends = p.getFriends();
 
         double radianStep = Math.PI * 2 / friends.size();
 
@@ -200,7 +200,7 @@ public class Client extends Thread
         }
         else
         {
-            List<Player> friends = b.fetchFriends();
+            List<Player> friends = b.getFriends();
             this.sendPlayerToClient(b, 300, 243, 1, 300);
 
             double radianStep = Math.PI * 2 / friends.size();
@@ -208,7 +208,7 @@ public class Client extends Thread
             double currentStep = 0;
 
 
-            for(Player f : b.fetchFriends())
+            for(Player f : b.getFriends())
             {
                 f = this.graph.getPlayer(f.getId());
                 this.sendPlayerToClient(f, (int)(300 + Math.cos(currentStep) * 300),
@@ -239,12 +239,12 @@ public class Client extends Thread
         {
             this.sendPlayerToClient(b, 600, 440, 1, 600);
 
-            for(Player f : b.fetchFriends()) //all my friends
+            for(Player f : b.getFriends()) //all my friends
             {
                 f = this.graph.getPlayer(f.getId());
-                for(Player ff : f.fetchFriends()) // all my friends friends
+                for(Player ff : f.getFriends()) // all my friends friends
                 {
-                    for(Player f2 : b.fetchFriends()) // all my friends
+                    for(Player f2 : b.getFriends()) // all my friends
                     {
                         if(f2.getId().equals(ff.getId()))
                         {

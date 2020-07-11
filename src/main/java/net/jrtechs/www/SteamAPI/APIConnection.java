@@ -156,29 +156,28 @@ public class APIConnection
      * @param ids
      * @return
      */
-    public Map<String, String> getNames(List<String> ids)
+    public List<Player> getPlayers(List<String> ids)
     {
         System.out.println(ids);
-        Map<String, String> map = new HashMap<>();
-
+        List<Player> players = new ArrayList<>();
         while(!ids.isEmpty())
         {
-            String queryUrl = baseURL + playerInfoURL + apiKey + "&steamids=";
+            StringBuilder queryUrl = new StringBuilder(baseURL + playerInfoURL + apiKey + "&steamids=");
 
-            int remove = (ids.size() > 100) ? 100 : ids.size();
+            int remove = Math.min(ids.size(), 100);
 
             for(int i = 0; i < remove; i++)
             {
-                queryUrl = queryUrl + "," + ids.remove(0);
+                queryUrl.append(",").append(ids.remove(0));
             }
 
             System.out.println(queryUrl);
             JSONArray names;
 
-            String apiResult = this.querySteamAPI(queryUrl);
+            String apiResult = this.querySteamAPI(queryUrl.toString());
 
             if(apiResult.equals(""))
-                return map;
+                return players;
 
             JSONObject object = new JSONObject(apiResult);
 
@@ -189,43 +188,37 @@ public class APIConnection
             else
             {
                 //eh
-                return map;
+                return players;
             }
 
             for(int i = 0; i < names.length(); i++)
             {
                 JSONObject player = names.getJSONObject(i);
 
-                if(player.has("steamid") && player.has("personaname"))
+                if(player.has(Player.KEY_STEAM_ID) && player.has(Player.KEY_USERNAME))
                 {
-                    map.put(player.getString("steamid"),
-                            player.getString("personaname"));
+                    players.add(transformToPlayer(player));
                 }
             }
         }
-        return map;
+        return players;
     }
 
 
-    /**
-     * Wrapper for getNames which returns a list of players instead
-     * of a map from id's to names
-     *
-     * @param ids
-     * @return
-     */
-    public List<Player> getFullPlayers(List<String> ids)
+    private Player transformToPlayer(JSONObject player)
     {
-        Map<String, String> map = this.getNames(ids);
-
-        List<Player> players = new ArrayList<>();
-
-        for(String id: map.keySet())
-        {
-            players.add(new Player(map.get(id),id));
-        }
-
-        return players;
+        String avatar = player.has(Player.KEY_AVATAR) ?
+                player.getString(Player.KEY_AVATAR) :
+                "";
+        String realName = player.has(Player.KEY_REAL_NAME) ?
+                player.getString(Player.KEY_REAL_NAME) :
+                "";
+        String id = player.getString(Player.KEY_STEAM_ID);
+        Integer timeCreated = player.has(Player.KEY_TIME_CREATED) ?
+                player.getInt(Player.KEY_TIME_CREATED) :
+                0;
+        String username =  player.getString(Player.KEY_USERNAME);
+        return new Player(username, id, realName, timeCreated, avatar);
     }
 
 
@@ -236,20 +229,11 @@ public class APIConnection
      * @param steamid the steam id of player
      * @return
      */
-    public String getPlayerName(String steamid)
+    public Player getSingle(String steamid) throws SteamConnectionException
     {
-        JSONObject response;
-        try
-        {
-            response = new JSONObject(WebScraper
-                    .getWebsite(this.baseURL + this.playerInfoURL +
-                            this.apiKey + "&steamids=" + steamid));
-        }
-        catch (SteamConnectionException ex)
-        {
-            return "";
-        }
-
+        JSONObject response = new JSONObject(WebScraper
+            .getWebsite(this.baseURL + this.playerInfoURL +
+                    this.apiKey + "&steamids=" + steamid));
 
         if(response.has("response"))
         {
@@ -257,9 +241,10 @@ public class APIConnection
             if(response.has("players"))
             {
                 JSONArray arr = response.getJSONArray("players");
+
                 if(arr.length() > 0)
                 {
-                    return arr.getJSONObject(0).getString("personaname");
+                    return transformToPlayer(arr.getJSONObject(0));
                 }
             }
         }
@@ -267,13 +252,13 @@ public class APIConnection
     }
 
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws SteamConnectionException
     {
         APIConnection con = new APIConnection();
 
         //steam id of jrtechs
         con.getFriends("76561198188400721").forEach(System.out::println);
 
-        System.out.println(con.getPlayerName("76561198188400721"));
+        System.out.println(con.getSingle("76561198188400721"));
     }
 }

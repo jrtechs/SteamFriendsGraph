@@ -99,6 +99,11 @@ public class Server extends WebSocketServer
                 .getAddress().getHostAddress());
     }
 
+    @Override
+    public void onStart() {
+
+    }
+
 
     /**
      * Removes a client from the main list of clients

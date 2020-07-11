@@ -12,6 +12,7 @@ import java.util.*;
  *
  * @author Jeffery Russell 11-18-18
  */
+@Deprecated
 public class SteamWebCrawler
 {
     /** Object used to limit the speed at which I access the steam
@@ -73,7 +74,7 @@ public class SteamWebCrawler
             {
                 winners.add(this.namelessQueue.remove());
             }
-            List<Player> namedPlayers = connection.getFullPlayers(winners);
+            List<Player> namedPlayers = connection.getPlayers(winners);
             this.throttler.wait(1);
             downlaodQueue.addAll(namedPlayers);
         }
@@ -98,7 +99,7 @@ public class SteamWebCrawler
             {
                 if(fileIO.playerExists(s))
                 {
-                    downlaodQueue.add(new Player("dummy", s));
+                    //downlaodQueue.add(new Player("dummy", s));
                 }
                 else
                 {
@@ -150,7 +151,7 @@ public class SteamWebCrawler
      */
     public void runSteamCrawlerBase(String baseID)
     {
-        downlaodQueue.add(new Player("jrtechs", baseID));
+        //downlaodQueue.add(new Player("jrtechs", baseID));
         runCrawler();
     }
 
