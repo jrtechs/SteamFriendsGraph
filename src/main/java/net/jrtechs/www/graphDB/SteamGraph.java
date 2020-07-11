@@ -1,13 +1,12 @@
 package net.jrtechs.www.graphDB;
 
 import net.jrtechs.www.SteamAPI.SteamConnectionException;
+import net.jrtechs.www.server.Game;
 import net.jrtechs.www.server.Player;
 import net.jrtechs.www.SteamAPI.APIConnection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,6 +20,7 @@ public class SteamGraph
     public static String KEY_PLAYER = "player";
     public static String KEY_CRAWLED_STATUS = "crawled";
 
+    public static String KEY_CRAWLED_GAME_STATUS = "crawled_game";
 
     /** Connection to the graph server */
     private GraphConnection con;
@@ -73,6 +73,7 @@ public class SteamGraph
                         .addV(SteamGraph.KEY_PLAYER)
                         .property(Player.KEY_USERNAME, p.getName())
                         .property(SteamGraph.KEY_CRAWLED_STATUS, 0)
+                        .property(SteamGraph.KEY_CRAWLED_GAME_STATUS, 0)
                         .property(Player.KEY_STEAM_ID, p.getId())
                         .property(Player.KEY_AVATAR, p.getAvatar())
                         .property(Player.KEY_REAL_NAME, p.getRealName())
@@ -84,6 +85,44 @@ public class SteamGraph
         {
             e.printStackTrace();
         }
+    }
+
+    private boolean gameAlreadyInGraph(Integer id)
+    {
+        return !con.getTraversal()
+                .V().hasLabel(Game.KEY_DB)
+                .has(Game.KEY_STEAM_GAME_ID, id)
+                .toList().isEmpty();
+    }
+
+    private void insertGameForPlayerToGraph(String id, Game g)
+    {
+        if(!gameAlreadyInGraph(g.getAppID()))// check if game is already in graph
+        {
+            //insert game into graph
+            this.con.getTraversal()
+                    .addV(Game.KEY_DB)
+                    .property(Game.KEY_STEAM_GAME_ID, g.getAppID())
+                    .property(Game.KEY_GAME_NAME, g.getName())
+                    .property(Game.KEY_GAME_ICON, g.getIcon())
+                    .property(Game.KEY_GAME_LOGO, g.getLogo())
+                    .id().next();
+        }
+
+        // insert connection from player to game
+
+        this.con.getTraversal()
+                .V()
+                .hasLabel(SteamGraph.KEY_PLAYER)
+                .has(Player.KEY_STEAM_ID, id)
+                .as("p")
+                .V().hasLabel(Game.KEY_DB)
+                .has(Game.KEY_STEAM_GAME_ID, g.getAppID())
+                .as("g")
+                .addE(Game.KEY_RELATIONSHIP)
+                .from("p").to("g")
+                .property(Game.KEY_PLAY_TIME, g.getTimePlayed())
+                .id().next();
     }
 
 
@@ -122,7 +161,6 @@ public class SteamGraph
      */
     private void insertEdgeIntoGraph(String p1, String p2)
     {
-
         try
         {
             if(!this.edgeAlreadyInGraph(p1, p2))
@@ -154,14 +192,31 @@ public class SteamGraph
      * @param id
      * @return
      */
-    private boolean playerAlreadyIndexed(String id)
+    private boolean playerFriendsAlreadyIndexed(String id)
+    {
+        return playerPropertyIndexed(id, SteamGraph.KEY_CRAWLED_STATUS);
+    }
+
+
+    private boolean playerGamesAlreadyIndexed(String id)
+    {
+        return playerPropertyIndexed(id, SteamGraph.KEY_CRAWLED_GAME_STATUS);
+    }
+
+    /**
+     * determines if a player has been indexed yet
+     *
+     * @param id
+     * @return
+     */
+    private boolean playerPropertyIndexed(String id, String key)
     {
         try
         {
             return this.con.getTraversal()
                     .V().hasLabel(SteamGraph.KEY_PLAYER)
                     .has(Player.KEY_STEAM_ID, id)
-                    .has(SteamGraph.KEY_CRAWLED_STATUS, 0)
+                    .has(key, 0)
                     .toList().isEmpty();
         }
         catch(Exception e)
@@ -172,14 +227,26 @@ public class SteamGraph
     }
 
 
-    private void updateCrawledStatus(String id)
+    private void updateCrawledStatusFriends(String id)
+    {
+        updateCrawledStatus(id, SteamGraph.KEY_CRAWLED_STATUS);
+    }
+
+
+    private void updateCrawledStatusGames(String id)
+    {
+        updateCrawledStatus(id, SteamGraph.KEY_CRAWLED_GAME_STATUS);
+    }
+
+
+    private void updateCrawledStatus(String id, String key)
     {
         try
         {
             this.con.getTraversal().V()
                     .hasLabel(SteamGraph.KEY_PLAYER)
                     .has(Player.KEY_STEAM_ID, id)
-                    .property(SteamGraph.KEY_CRAWLED_STATUS, 1).id().next();
+                    .property(key, 1).id().next();
         }
         catch (Exception e)
         {
@@ -223,6 +290,23 @@ public class SteamGraph
         }};
     }
 
+    private List<Game> getPlayerGamesFromGraph(String id)
+    {
+        System.out.println("fetching games from graph");
+        return new ArrayList<Game>()
+        {{
+            con.getTraversal().V()
+                    .hasLabel(SteamGraph.KEY_PLAYER)
+                    .has(Player.KEY_STEAM_ID, id)
+                    .outE()
+                    .inV()
+                    .hasLabel(Game.KEY_DB)
+                    .valueMap()
+                    .toStream().forEach(r ->
+                        add(new Game(r)));
+        }};
+    }
+
 
     /**
      * tells api to get this dude's friends list
@@ -248,9 +332,19 @@ public class SteamGraph
         friendsIds.forEach(s->
                 this.insertEdgeIntoGraph(id, s));
 
-        this.updateCrawledStatus(id);
+        this.updateCrawledStatusFriends(id);
         this.con.commit();
     }
+
+    private void indexPersonsGames(String id)
+    {
+        System.out.println("indexing  games for " + id);
+        List<Game> games = this.api.getGames(id);
+        games.forEach(g -> insertGameForPlayerToGraph(id, g));
+        this.updateCrawledStatusGames(id);
+        this.con.commit();
+    }
+
 
 
     /**
@@ -265,7 +359,7 @@ public class SteamGraph
         if(this.alreadyInGraph(id)) // yay
         {
             p = this.getPlayerFromGraph(id);
-            if(!this.playerAlreadyIndexed(id)) //must index the person
+            if(!this.playerFriendsAlreadyIndexed(id)) //must index the person
             {
                 this.indexPersonFriends(id);
             }
@@ -309,8 +403,10 @@ public class SteamGraph
     public static void main(String[] args)
     {
         SteamGraph graph = new SteamGraph();
-        graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
+        //graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
 //        graph.indexPersonFriends("76561198188400721");
+        //graph.indexPersonsGames("76561198068098265");
+        System.out.println(graph.getPlayerGamesFromGraph("76561198068098265"));
         graph.close();
 //
 //        Player base = graph.getPlayer(args[0]);

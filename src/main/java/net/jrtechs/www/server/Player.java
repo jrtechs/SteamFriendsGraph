@@ -36,6 +36,7 @@ public class Player
 
     private Integer timeCreated;
 
+    private List<Game> playerGames;
 
     /**
      * Sets the name and id of the player
@@ -53,6 +54,7 @@ public class Player
         this.timeCreated = timeCreated;
         this.avatar = avatar;
         this.friends = new ArrayList<>();
+        this.playerGames = new ArrayList<>();
     }
 
 
@@ -64,11 +66,17 @@ public class Player
         this.avatar = ((List<Object>) apiInfo.getOrDefault(Player.KEY_AVATAR, "")).get(0).toString();
         this.timeCreated = (Integer)((List<Object>)apiInfo.get(KEY_TIME_CREATED)).get(0);
         this.friends = new ArrayList<>();
+        this.playerGames = new ArrayList<>();
     }
 
     public List<Player> getFriends()
     {
         return friends;
+    }
+
+    public List<Game> getGames()
+    {
+        return this.playerGames;
     }
 
 
