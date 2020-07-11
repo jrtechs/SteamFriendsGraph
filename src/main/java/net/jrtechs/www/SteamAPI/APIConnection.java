@@ -1,5 +1,6 @@
 package net.jrtechs.www.SteamAPI;
 
+import net.jrtechs.www.server.Game;
 import net.jrtechs.www.server.Player;
 import net.jrtechs.www.utils.ConfigLoader;
 
@@ -8,13 +9,18 @@ import net.jrtechs.www.webCrawler.APIThrottler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Class which is used to pull information from the Steam api
+ *
+ * Documentation at https://developer.valvesoftware.com/wiki/Steam_Web_API
  *
  * @author Jeffery Russell 5-26-18
  */
@@ -27,6 +33,8 @@ public class APIConnection
     private final String playerInfoURL = "/ISteamUser/GetPlayerSummaries/v0002/";
 
     private final String friendListURL = "/ISteamUser/GetFriendList/v0001/";
+
+    private final String gamesListURL = "/IPlayerService/GetOwnedGames/v0001/";
 
     /** Path to conf file(from within the conf folder) **/
     private final String confPath = "SteamAPIKey.json";
@@ -57,6 +65,7 @@ public class APIConnection
      */
     public String querySteamAPI(String url)
     {
+        System.out.println(url);
         boolean downloaded = false;
         String apiData = "";
         while(!downloaded)
@@ -108,6 +117,29 @@ public class APIConnection
             }
         }
         return apiData;
+    }
+
+
+    public List<Game> getGames(String steamID)
+    {
+        List<Game> games = new ArrayList<>();
+        String apiData = this.querySteamAPI(this.baseURL + this.gamesListURL +
+                this.apiKey + "&steamid=" + steamID +
+                "&include_appinfo=true&include_played_free_games=true");
+
+        if(apiData.isEmpty())
+            return games;
+
+        JSONObject object = new JSONObject(apiData);
+        System.out.println(object);
+
+        if(object.has("response"))
+        {
+            JSONArray gamesJ = object.getJSONObject("response").getJSONArray("games");
+            IntStream.range(0, gamesJ.length()).forEach(i ->
+                    games.add(new Game(gamesJ.getJSONObject(i))));
+        }
+        return games;
     }
 
 
@@ -257,8 +289,9 @@ public class APIConnection
         APIConnection con = new APIConnection();
 
         //steam id of jrtechs
-        con.getFriends("76561198188400721").forEach(System.out::println);
+        //con.getFriends("76561198188400721").forEach(System.out::println);
 
-        System.out.println(con.getSingle("76561198188400721"));
+        //System.out.println(con.getSingle("76561198188400721"));
+        System.out.println(con.getGames("76561198188400721"));
     }
 }
