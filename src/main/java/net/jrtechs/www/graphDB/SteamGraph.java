@@ -10,14 +10,14 @@ import java.util.Map;
 
 /**
  * Does graph based operations with {@link Player}
- * and {@link RemoteConnection}
+ * and
  *
  * @author Jeffery Russell 5-26-17
  */
 public class SteamGraph
 {
     /** Connection to the graph server */
-    private RemoteConnection con;
+    private GraphConnection con;
 
     /** Connection to steam api */
     private APIConnection api;
@@ -29,7 +29,7 @@ public class SteamGraph
      */
     public SteamGraph()
     {
-        this.con = new RemoteConnection();
+        this.con = new GraphConnection();
         this.api = new APIConnection();
     }
 
@@ -42,10 +42,11 @@ public class SteamGraph
      */
     private boolean alreadyInGraph(String id)
     {
-        String query = "g.V().hasLabel('player')" +
-                ".has('id', '" + id + "')";
-        //System.out.println(query);
-        return (1 <= con.queryGraph(query).stream().count());
+        System.out.println("Checking id:" + id);
+        return !con.getTraversal()
+                .V().hasLabel("player")
+                .has("id", id)
+                .toList().isEmpty();
     }
 
 
@@ -55,18 +56,18 @@ public class SteamGraph
      *
      * @param
      */
-    private void insertPlayerIntoGraph(String id, String name)
+    private void insertPlayerIntoGraph(String id, String name, boolean check)
     {
         try
         {
-            if(!this.alreadyInGraph(id))
+            if(!check || !this.alreadyInGraph(id))
             {
-                String queryInsertPlayer = "g.addV('player')" +
-                        ".property('name', '" + name + "')" +
-                        ".property('crawled', '0')" +
-                        ".property('id', '" + id + "')";
                 System.out.println("inserting " + name + " into graph");
-                this.con.queryGraph(queryInsertPlayer);
+                this.con.getTraversal()
+                        .addV("player")
+                        .property("name", name)
+                        .property("crawled", 0)
+                        .property("id", id).id().next();
             }
         }
         catch (Exception e)
@@ -88,12 +89,12 @@ public class SteamGraph
     {
         try
         {
-            String query = "g.V().hasLabel('player')" +
-                    ".has('id', '" + p1 + "')" +
-                    ".both()" +
-                    ".has('id', '" + p2 + "')";
-            //System.out.println(query);
-            return (1 <= con.queryGraph(query).stream().count());
+            return !this.con.getTraversal()
+                    .V().hasLabel("player")
+                    .has("id", p1)
+                    .both()
+                    .has("id", p2)
+                    .toList().isEmpty();
         }
         catch(Exception e)
         {
@@ -111,20 +112,22 @@ public class SteamGraph
      */
     private void insertEdgeIntoGraph(String p1, String p2)
     {
+
         try
         {
             if(!this.edgeAlreadyInGraph(p1, p2))
             {
-                String query = "g.V().hasLabel('player')" +
-                        ".has('id', '" + p1 + "')" +
-                        ".as('p1')" +
-                        "V().hasLabel('player')" +
-                        ".has('id', '" + p2 + "')" +
-                        ".as('p2')" +
-                        ".addE('friends')" +
-                        ".from('p1').to('p2')";
-                //System.out.println(query);
-                this.con.queryGraph(query);
+                System.out.println("Inserting edge: " + p1 + ":" + p2);
+                this.con.getTraversal()
+                        .V()
+                        .hasLabel("player")
+                        .has("id", p1)
+                        .as("p1")
+                        .V().hasLabel("player")
+                        .has("id", p2)
+                        .as("p2")
+                        .addE("friends")
+                        .from("p1").to("p2").id().next();
             }
         }
         catch (Exception e)
@@ -145,11 +148,11 @@ public class SteamGraph
     {
         try
         {
-            String query = "g.V().hasLabel('player')" +
-                    ".has('id', '" + id + "')" +
-                    ".has('crawled', '0')";
-
-            return (1 != con.queryGraph(query).stream().count());
+            return this.con.getTraversal()
+                    .V().hasLabel("player")
+                    .has("id", id)
+                    .has("crawled", 0)
+                    .toList().isEmpty();
         }
         catch(Exception e)
         {
@@ -163,11 +166,10 @@ public class SteamGraph
     {
         try
         {
-            String query = "g.V().hasLabel('player')" +
-                    ".has('id', '" + id + "')" +
-                    ".property('crawled', '1')";
-
-            this.con.queryGraph(query);
+            this.con.getTraversal().V()
+                    .hasLabel("player")
+                    .has("id", id)
+                    .property("crawled", 1).id().next();
         }
         catch (Exception e)
         {
@@ -184,11 +186,11 @@ public class SteamGraph
      */
     private String getNameFromGraph(String id)
     {
-        String query = "g.V().hasLabel('player')" +
-                ".has('id', '" + id + "')" +
-                ".values('name')";
-        return this.con.queryGraph(query).stream()
-                .findFirst().get().getObject().toString();
+        return this.con.getTraversal().V()
+                .hasLabel("player")
+                .has("id", id)
+                .values("name")
+                .toStream().findFirst().get().toString();
     }
 
 
@@ -200,19 +202,19 @@ public class SteamGraph
      */
     private List<Player> getFriendsFromGraph(String id)
     {
+        System.out.println("fetching friends from graph");
         List<Player> friends = new ArrayList<>();
-
-        String query = "g.V().hasLabel('player')" +
-                ".has('id', '" + id + "')" +
-                ".both().valueMap()";
         try
         {
-            this.con.queryGraph(query).stream().forEach(r ->
-                    friends.add(new Player(
-                            ((ArrayList) (((HashMap<String, Object>) (r.getObject()))
-                                    .get("name"))).get(0).toString(),
-                            ((ArrayList) (((HashMap<String, Object>) (r.getObject()))
-                                    .get("id"))).get(0).toString()))
+            this.con.getTraversal().V()
+                    .hasLabel("player")
+                    .has("id", id)
+                    .both().valueMap().toStream().forEach(r ->
+                        friends.add(
+                                new Player(r.get("name").toString(),
+                                        r.get("id").toString()
+                                )
+                        )
             );
         }
         catch(Exception e)
@@ -247,12 +249,13 @@ public class SteamGraph
 
         for(String key: names.keySet())
         {
-            this.insertPlayerIntoGraph(key, names.get(key));
+            this.insertPlayerIntoGraph(key, names.get(key), false);
         }
 
         friendsIds.forEach(s-> this.insertEdgeIntoGraph(id, s));
 
         this.updateCrawledStatus(id);
+        this.con.commit();
     }
 
 
@@ -285,11 +288,23 @@ public class SteamGraph
             }
             else
             {
-                this.insertPlayerIntoGraph(id, name);
+                this.insertPlayerIntoGraph(id, name, false);
                 return this.getPlayer(id);
             }
         }
         return p;
+    }
+
+    public void close()
+    {
+        try
+        {
+            this.con.closeConnection();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 
@@ -299,7 +314,10 @@ public class SteamGraph
      */
     public static void main(String[] args)
     {
-//        SteamGraph graph = new SteamGraph();
+        SteamGraph graph = new SteamGraph();
+        graph.getPlayer("76561198013779806").getFriends().stream().forEach(System.out::println);
+//        graph.indexPersonFriends("76561198188400721");
+        graph.close();
 //
 //        Player base = graph.getPlayer(args[0]);
 //

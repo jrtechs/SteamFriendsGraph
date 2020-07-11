@@ -128,6 +128,7 @@ public class APIConnection
             return friendsId; //private url
 
         JSONObject object = new JSONObject(apiData);
+        System.out.println(object);
 
         if(object.has("friendslist"))
         {
