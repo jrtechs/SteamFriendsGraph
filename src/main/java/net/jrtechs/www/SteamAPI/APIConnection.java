@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 public class APIConnection
 {
     /** Base url to use for all queries to steam's api  **/
-    private final String baseURL = "http://api.steampowered.com";
+    private final String baseURL = "https://community.steam-api.com";
 
     /** Path to use when getting info on a player from api **/
     private final String playerInfoURL = "/ISteamUser/GetPlayerSummaries/v0002/";
@@ -289,7 +289,7 @@ public class APIConnection
         APIConnection con = new APIConnection();
 
         //steam id of jrtechs
-        //con.getFriends("76561198188400721").forEach(System.out::println);
+        con.getFriends("76561198188400721").forEach(System.out::println);
 
         //System.out.println(con.getSingle("76561198188400721"));
         System.out.println(con.getGames("76561198188400721"));
