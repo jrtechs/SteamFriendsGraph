@@ -141,7 +141,6 @@ function addConnection(id1, id2)
     {
         if(alreadyInGraph(id2) && !edgeInGraph(id1, id2))
         {
-            console.log("adding edge dynamic")
             network.body.data.edges.add([{
                 from: id1,
                 to: id2
@@ -159,13 +158,13 @@ function addConnection(id1, id2)
  */
 function processUserConnections(node)
 {
-    updateProgress();
+
     getPersonAPI(node.id,
         (data)=>
         {
+            updateProgress();
             for(var i = 0; i < data.friends.length; i++)
             {
-                console.log("adding new con");
                 addConnection(node.id, data.friends[i].id)
             }
         }, (error)=>
@@ -183,15 +182,11 @@ function processUserConnections(node)
  */
 function createConnections()
 {
-    return new Promise((resolve, reject)=>
+    var prom = [];
+    for(var i = 0; i < nodes.length; i++)
     {
-        var prom = [];
-        for(var i = 0; i < nodes.length; i++)
-        {
-            processUserConnections(nodes[i]);
-        }
-
-    });
+        processUserConnections(nodes[i]);
+    }
 }
 
 
@@ -201,13 +196,20 @@ function createConnections()
 function updateProgress()
 {
     indexed++;
-    const percent = parseInt((indexed/total)*100);
-
-    $("#" + progressID).html("<div class=\"progress\">\n" +
-        "  <div class=\"progress-bar progress-bar-striped progress-bar-animated\" role=\"progressbar\" style=\"width: " + percent + "%\" aria-valuenow=\"" + percent + "\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>\n" +
-        "</div>");
+    if(indexed >= total)
+    {
+        $("#" + progressID).html("");
+    }
+    else
+    {
+        const percent = parseInt((indexed/total)*100);
+        $("#" + progressID).html("<div class=\"progress\">\n" +
+            "  <div class=\"progress-bar progress-bar-striped progress-bar-animated\" role=\"progressbar\" style=\"width: " + percent + "%\" aria-valuenow=\"" + percent + "\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>\n" +
+            "</div>");
+    }
 }
 
+var selfData;
 
 /**
  * Adds the base  person to the graph.
@@ -221,6 +223,7 @@ function addSelfToGraph(id)
     {
         getPersonAPI(id, (data)=>
         {
+            selfData = data;
             baseID = data.id;
             total = data.friends.length;
             addPersonToGraph(data);
@@ -241,11 +244,19 @@ function addSelfToGraph(id)
  */
 function bringUpProfileView(uname)
 {
-    for(var i = 0; i < nodes.length; i++)
+    console.log(uname);
+    if(uname === selfData.id)
     {
-        if(nodes[i].id === uname)
+        profileGen(selfData, "profileGen");
+    }
+    else
+    {
+        for(var i = 0; i < selfData.friends.length; i++)
         {
-            profileGen(nodes[i].id, "profileGen");
+            if(selfData.friends[i].id === uname)
+            {
+                profileGen(selfData.friends[i], "profileGen");
+            }
         }
     }
 }
@@ -275,18 +286,18 @@ function createFriendsGraph(username, containerName, progressBarID)
                 edges: edges
             };
         network = new vis.Network(container, data, options);
-
-
+        bringUpProfileView(selfData.id);
+        network.on("click", function (params)
+        {
+            if(Number(this.getNodeAt(params.pointer.DOM)) !== NaN)
+            {
+                bringUpProfileView(this.getNodeAt(params.pointer.DOM));
+            }
+        });
         createConnections().then(()=>
         {
-
-            network.on("click", function (params)
-            {
-                if(Number(this.getNodeAt(params.pointer.DOM)) !== NaN)
-                {
-                    bringUpProfileView(this.getNodeAt(params.pointer.DOM));
-                }
-            });
+            // $("#" + progressID).html("");
+            console.log("Finished");
         })
     }).catch((error)=>
     {
