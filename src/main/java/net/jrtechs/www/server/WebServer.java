@@ -38,7 +38,7 @@ public class WebServer
 
         Type typePlayer = new TypeToken<Player>(){}.getType();
         Type typeGames = new TypeToken<List<Game>>(){}.getType();
-        staticFileLocation("/website");
+        staticFiles.externalLocation("./website");
 
         get("/player/:id", (req, res) ->
                 gson.toJson(
