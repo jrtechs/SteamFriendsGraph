@@ -130,7 +130,7 @@ public class APIConnection
         JSONObject object = new JSONObject(apiData);
         System.out.println(object);
 
-        if(object.has("response"))
+        if(object.has("response") && object.getJSONObject("response").has("games"))
         {
             JSONArray gamesJ = object.getJSONObject("response").getJSONArray("games");
             IntStream.range(0, gamesJ.length()).forEach(i ->
