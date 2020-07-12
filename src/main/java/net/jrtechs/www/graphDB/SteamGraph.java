@@ -1,8 +1,8 @@
 package net.jrtechs.www.graphDB;
 
 import net.jrtechs.www.SteamAPI.SteamConnectionException;
-import net.jrtechs.www.server.Game;
-import net.jrtechs.www.server.Player;
+import net.jrtechs.www.model.Game;
+import net.jrtechs.www.model.Player;
 import net.jrtechs.www.SteamAPI.APIConnection;
 
 import java.util.ArrayList;

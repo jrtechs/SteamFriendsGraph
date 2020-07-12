@@ -1,7 +1,7 @@
 package net.jrtechs.www.webCrawler;
 
 import net.jrtechs.www.SteamAPI.APIConnection;
-import net.jrtechs.www.server.Player;
+import net.jrtechs.www.model.Player;
 
 import java.util.*;
 

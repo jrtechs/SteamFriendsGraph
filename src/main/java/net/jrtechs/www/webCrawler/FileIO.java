@@ -1,6 +1,6 @@
 package net.jrtechs.www.webCrawler;
 
-import net.jrtechs.www.server.Player;
+import net.jrtechs.www.model.Player;
 import net.jrtechs.www.utils.FileReader;
 import net.jrtechs.www.utils.WrappedFileWriter;
 import org.json.JSONArray;

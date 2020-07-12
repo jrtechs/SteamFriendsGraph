@@ -1,7 +1,7 @@
 package net.jrtechs.www.SteamAPI;
 
-import net.jrtechs.www.server.Game;
-import net.jrtechs.www.server.Player;
+import net.jrtechs.www.model.Game;
+import net.jrtechs.www.model.Player;
 import net.jrtechs.www.utils.ConfigLoader;
 
 import net.jrtechs.www.utils.WebScraper;
@@ -9,12 +9,9 @@ import net.jrtechs.www.webCrawler.APIThrottler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
