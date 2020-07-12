@@ -285,7 +285,12 @@ public class SteamGraph
             con.getTraversal().V()
                 .hasLabel(SteamGraph.KEY_PLAYER)
                 .has(Player.KEY_STEAM_ID, id)
-                .both().valueMap().toStream().forEach(r ->
+                .outE()
+                .inV()
+                .hasLabel(SteamGraph.KEY_PLAYER)
+                .valueMap()
+                .toStream()
+                .forEach(r ->
                     add(new Player(r)));
         }};
     }
@@ -336,15 +341,22 @@ public class SteamGraph
         this.con.commit();
     }
 
-    private void indexPersonsGames(String id)
+    private List<Game> indexPersonsGames(String id)
     {
         System.out.println("indexing  games for " + id);
         List<Game> games = this.api.getGames(id);
         games.forEach(g -> insertGameForPlayerToGraph(id, g));
         this.updateCrawledStatusGames(id);
         this.con.commit();
+        return games;
     }
 
+    public List<Game> getGameList(String id)
+    {
+        return this.playerGamesAlreadyIndexed(id) ?
+                this.getPlayerGamesFromGraph(id) :
+                this.indexPersonsGames(id);
+    }
 
 
     /**
@@ -373,6 +385,8 @@ public class SteamGraph
             {
                 p = this.api.getSingle(id);
                 this.insertPlayerIntoGraph(p, false);
+                this.indexPersonFriends(id);
+                p.setFriends(this.getFriendsFromGraph(id));
             }
             catch (SteamConnectionException e)
             {
@@ -403,10 +417,14 @@ public class SteamGraph
     public static void main(String[] args)
     {
         SteamGraph graph = new SteamGraph();
-        //graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
-//        graph.indexPersonFriends("76561198188400721");
-        //graph.indexPersonsGames("76561198068098265");
-        System.out.println(graph.getPlayerGamesFromGraph("76561198068098265"));
+
+        graph.getPlayer("76561198188400721");
+        graph.getGameList("76561198188400721");
+//        //graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
+////        graph.indexPersonFriends("76561198188400721");
+//        graph.indexPersonsGames("76561198188400721");
+//        System.out.println(graph.getGameList("76561198188400721"));
+//        System.out.println(graph.getPlayer("76561198188400721"));
         graph.close();
 //
 //        Player base = graph.getPlayer(args[0]);
