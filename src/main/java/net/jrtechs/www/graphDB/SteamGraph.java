@@ -351,7 +351,7 @@ public class SteamGraph
         return games;
     }
 
-    public List<Game> getGameList(String id)
+    public synchronized List<Game> getGameList(String id)
     {
         return this.playerGamesAlreadyIndexed(id) ?
                 this.getPlayerGamesFromGraph(id) :
@@ -365,7 +365,7 @@ public class SteamGraph
      * @param id
      * @return
      */
-    public Player getPlayer(String id)
+    public synchronized Player getPlayer(String id)
     {
         Player p;
         if(this.alreadyInGraph(id)) // yay
@@ -418,8 +418,10 @@ public class SteamGraph
     {
         SteamGraph graph = new SteamGraph();
 
-        graph.getPlayer("76561198188400721");
-        graph.getGameList("76561198188400721");
+        graph.getPlayer("76561198188400721")
+                .getFriends().forEach(f-> graph.getGameList(f.getId()));
+//        graph.getPlayer("76561198062300654");
+        //graph.getGameList("76561198188400721");
 //        //graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
 ////        graph.indexPersonFriends("76561198188400721");
 //        graph.indexPersonsGames("76561198188400721");

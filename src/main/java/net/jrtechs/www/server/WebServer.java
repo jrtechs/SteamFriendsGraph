@@ -31,6 +31,11 @@ public class WebServer
         this.graph = new SteamGraph();
         this.gson = new Gson();
 
+        int maxThreads = 8;
+        int minThreads = 2;
+        int timeOutMillis = 3000000;
+        threadPool(maxThreads, minThreads, timeOutMillis);
+
         Type typePlayer = new TypeToken<Player>(){}.getType();
         Type typeGames = new TypeToken<List<Game>>(){}.getType();
         staticFileLocation("/website");
