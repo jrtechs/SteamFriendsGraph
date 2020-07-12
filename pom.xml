@@ -29,25 +29,10 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.tinkerpop/gremlin-core -->
     <dependency>
-      <groupId>com.tinkerpop</groupId>
-      <artifactId>gremlin-core</artifactId>
-      <version>3.0.0.M7</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.apache.tinkerpop/gremlin-driver -->
-    <dependency>
-      <groupId>org.apache.tinkerpop</groupId>
-      <artifactId>gremlin-driver</artifactId>
-      <version>3.3.3</version>
-    </dependency>
-
-
-    <dependency>
-      <groupId>org.apache.tinkerpop</groupId>
-      <artifactId>tinkergraph-gremlin</artifactId>
-      <version>3.3.3</version>
+      <groupId>org.janusgraph</groupId>
+      <artifactId>janusgraph-berkeleyje</artifactId>
+      <version>0.3.1</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.json/json -->
