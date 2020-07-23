@@ -1,17 +1,19 @@
 package net.jrtechs.www.graphDB;
 
+import com.google.gson.Gson;
 import net.jrtechs.www.SteamAPI.SteamConnectionException;
 import net.jrtechs.www.model.Game;
 import net.jrtechs.www.model.Player;
 import net.jrtechs.www.SteamAPI.APIConnection;
+import net.jrtechs.www.utils.WrappedFileWriter;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Does graph based operations with {@link Player}
- * and
+ * and {@link Game}
  *
  * @author Jeffery Russell 5-26-17
  */
@@ -62,28 +64,21 @@ public class SteamGraph
      *
      * @param
      */
-    private void insertPlayerIntoGraph(Player p, boolean check)
+    private void insertPlayerIntoGraph(Player p)
     {
-        try
+        if(!this.alreadyInGraph(p.getId()))
         {
-            if(!check || !this.alreadyInGraph(p.getId()))
-            {
-                System.out.println("inserting " + p.getName() + " into graph");
-                this.con.getTraversal()
-                        .addV(SteamGraph.KEY_PLAYER)
-                        .property(Player.KEY_USERNAME, p.getName())
-                        .property(SteamGraph.KEY_CRAWLED_STATUS, 0)
-                        .property(SteamGraph.KEY_CRAWLED_GAME_STATUS, 0)
-                        .property(Player.KEY_STEAM_ID, p.getId())
-                        .property(Player.KEY_AVATAR, p.getAvatar())
-                        .property(Player.KEY_REAL_NAME, p.getRealName())
-                        .property(Player.KEY_TIME_CREATED, p.getTimeCreated())
-                        .id().next();
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+            System.out.println("inserting " + p.getName() + " into graph");
+            this.con.getTraversal()
+                    .addV(SteamGraph.KEY_PLAYER)
+                    .property(Player.KEY_USERNAME, p.getName())
+                    .property(SteamGraph.KEY_CRAWLED_STATUS, 0)
+                    .property(SteamGraph.KEY_CRAWLED_GAME_STATUS, 0)
+                    .property(Player.KEY_STEAM_ID, p.getId())
+                    .property(Player.KEY_AVATAR, p.getAvatar())
+                    .property(Player.KEY_REAL_NAME, p.getRealName())
+                    .property(Player.KEY_TIME_CREATED, p.getTimeCreated())
+                    .id().next();
         }
     }
 
@@ -136,20 +131,12 @@ public class SteamGraph
      */
     private boolean edgeAlreadyInGraph(String p1, String p2)
     {
-        try
-        {
-            return !this.con.getTraversal()
-                    .V().hasLabel(SteamGraph.KEY_PLAYER)
-                    .has(Player.KEY_STEAM_ID, p1)
-                    .both()
-                    .has(Player.KEY_STEAM_ID, p2)
-                    .toList().isEmpty();
-        }
-        catch(Exception e)
-        {
-            return false;
-        }
-
+        return !this.con.getTraversal()
+                .V().hasLabel(SteamGraph.KEY_PLAYER)
+                .has(Player.KEY_STEAM_ID, p1)
+                .both()
+                .has(Player.KEY_STEAM_ID, p2)
+                .toList().isEmpty();
     }
 
 
@@ -159,30 +146,22 @@ public class SteamGraph
      * @param p1
      * @param p2
      */
-    private void insertEdgeIntoGraph(String p1, String p2)
+    private void insertFriendshipIntoGraph(String p1, String p2)
     {
-        try
+        if(!this.edgeAlreadyInGraph(p1, p2))
         {
-            if(!this.edgeAlreadyInGraph(p1, p2))
-            {
-                System.out.println("Inserting edge: " + p1 + ":" + p2);
-                this.con.getTraversal()
-                        .V()
-                        .hasLabel(SteamGraph.KEY_PLAYER)
-                        .has(Player.KEY_STEAM_ID, p1)
-                        .as("p1")
-                        .V().hasLabel(SteamGraph.KEY_PLAYER)
-                        .has(Player.KEY_STEAM_ID, p2)
-                        .as("p2")
-                        .addE(Player.KEY_FRIENDS)
-                        .from("p1").to("p2").id().next();
-            }
+            System.out.println("Inserting edge: " + p1 + ":" + p2);
+            this.con.getTraversal()
+                    .V()
+                    .hasLabel(SteamGraph.KEY_PLAYER)
+                    .has(Player.KEY_STEAM_ID, p1)
+                    .as("p1")
+                    .V().hasLabel(SteamGraph.KEY_PLAYER)
+                    .has(Player.KEY_STEAM_ID, p2)
+                    .as("p2")
+                    .addE(Player.KEY_FRIENDS)
+                    .from("p1").to("p2").id().next();
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
     }
 
 
@@ -211,19 +190,11 @@ public class SteamGraph
      */
     private boolean playerPropertyIndexed(String id, String key)
     {
-        try
-        {
-            return this.con.getTraversal()
-                    .V().hasLabel(SteamGraph.KEY_PLAYER)
-                    .has(Player.KEY_STEAM_ID, id)
-                    .has(key, 0)
-                    .toList().isEmpty();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return true;
+        return this.con.getTraversal()
+                .V().hasLabel(SteamGraph.KEY_PLAYER)
+                .has(Player.KEY_STEAM_ID, id)
+                .has(key, 0)
+                .toList().isEmpty();
     }
 
 
@@ -280,9 +251,7 @@ public class SteamGraph
     private List<Player> getFriendsFromGraph(String id)
     {
         System.out.println("fetching friends from graph");
-        return new ArrayList<Player>()
-        {{
-            con.getTraversal().V()
+        return con.getTraversal().V()
                 .hasLabel(SteamGraph.KEY_PLAYER)
                 .has(Player.KEY_STEAM_ID, id)
                 .outE()
@@ -290,26 +259,23 @@ public class SteamGraph
                 .hasLabel(SteamGraph.KEY_PLAYER)
                 .valueMap()
                 .toStream()
-                .forEach(r ->
-                    add(new Player(r)));
-        }};
+                .map(Player::new)
+                .collect(Collectors.toList());
     }
 
     private List<Game> getPlayerGamesFromGraph(String id)
     {
         System.out.println("fetching games from graph");
-        return new ArrayList<Game>()
-        {{
-            con.getTraversal().V()
-                    .hasLabel(SteamGraph.KEY_PLAYER)
-                    .has(Player.KEY_STEAM_ID, id)
-                    .outE()
-                    .inV()
-                    .hasLabel(Game.KEY_DB)
-                    .valueMap()
-                    .toStream().forEach(r ->
-                        add(new Game(r)));
-        }};
+        return con.getTraversal().V()
+                .hasLabel(SteamGraph.KEY_PLAYER)
+                .has(Player.KEY_STEAM_ID, id)
+                .outE()
+                .inV()
+                .hasLabel(Game.KEY_DB)
+                .valueMap()
+                .toStream()
+                .map(Game::new)
+                .collect(Collectors.toList());
     }
 
 
@@ -332,10 +298,10 @@ public class SteamGraph
 
         this.api.getPlayers(notInDatabase)
                 .forEach(p ->
-                        insertPlayerIntoGraph(p, false));
+                        insertPlayerIntoGraph(p));
 
         friendsIds.forEach(s->
-                this.insertEdgeIntoGraph(id, s));
+                this.insertFriendshipIntoGraph(id, s));
 
         this.updateCrawledStatusFriends(id);
         this.con.commit();
@@ -384,7 +350,7 @@ public class SteamGraph
             try
             {
                 p = this.api.getSingle(id);
-                this.insertPlayerIntoGraph(p, false);
+                this.insertPlayerIntoGraph(p);
                 this.indexPersonFriends(id);
                 p.setFriends(this.getFriendsFromGraph(id));
             }
@@ -417,9 +383,66 @@ public class SteamGraph
     public static void main(String[] args)
     {
         SteamGraph graph = new SteamGraph();
+        System.out.println(
+                graph.con.getTraversal().E().hasLabel(Game.KEY_RELATIONSHIP).count().next()
+        );
+//
+        Object o =
+                graph.con.getTraversal()
+                    .V()
+                    .hasLabel(Game.KEY_DB)
+                    .match(
+                            __.as("c").values(Game.KEY_STEAM_GAME_ID).as("gameID"),
+                            __.as("c").values(Game.KEY_GAME_NAME).as("gameName"),
+                            __.as("c").inE(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).as("time")
+                    ).select("gameID", "time", "gameName").toList();
 
-        graph.getPlayer("76561198188400721")
-                .getFriends().forEach(f-> graph.getGameList(f.getId()));
+//        System.out.println(new Gson().toJson(o));
+        WrappedFileWriter.writeToFile(new Gson().toJson(o).toLowerCase(), "games.json");
+
+//        System.out.println(
+//                graph.con.getTraversal()
+//                        .V()
+//                        .hasLabel(Game.KEY_DB)
+//                        .match(
+//                                __.as("c").values(Game.KEY_STEAM_GAME_ID).as("gameID"),
+//                                __.as("c").values(Game.KEY_GAME_NAME).as("gameName"),
+//                                __.as("c").inE(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).as("averageGameTime")
+//                        ).select("gameID", "time", "averageGameTime").toList()
+//        );
+
+//        System.out.println(
+//                graph.con.getTraversal().V()
+//                        .hasLabel(Game.KEY_DB)
+//                        .as("g").inE()
+//                        .hasLabel(Game.KEY_RELATIONSHIP)
+//                        .as("p")
+//                        .project(Game.KEY_PLAY_TIME, Game.KEY_STEAM_GAME_ID).value().toList()
+//        );
+
+        System.out.println(
+                graph.con.getTraversal().E()
+                        .hasLabel(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).max().toList()
+        );
+//
+//        graph.getPlayer("76561198188400721")
+//            .getFriends().forEach(f->
+//            {
+//                graph.getGameList(f.getId());
+//                graph.getPlayer(f.getId()).getFriends().forEach(f2->
+//                {
+//                    graph.getGameList(f2.getId());
+//                    graph.getPlayer(f2.getId());
+//                });
+//            });
+
+        System.out.println(
+                graph.con.getTraversal().V().hasLabel(SteamGraph.KEY_PLAYER)
+                .has(SteamGraph.KEY_CRAWLED_GAME_STATUS, 1)
+                .count().next()
+        );
+
+
 //        graph.getPlayer("76561198062300654");
         //graph.getGameList("76561198188400721");
 //        //graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
