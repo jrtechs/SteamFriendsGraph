@@ -1,9 +1,8 @@
-package net.jrtechs.www.server;
+package net.jrtechs.www.model;
 
 
 import org.json.JSONObject;
 
-import javax.json.JsonObject;
 import java.util.List;
 import java.util.Map;
 

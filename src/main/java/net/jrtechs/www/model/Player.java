@@ -1,4 +1,4 @@
-package net.jrtechs.www.server;
+package net.jrtechs.www.model;
 
 import java.util.ArrayList;
 import java.util.List;
