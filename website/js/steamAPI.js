@@ -31,7 +31,7 @@ function getPersonAPI(userID, suc, err)
 function getUserGames(userID, suc, err)
 {
     //ex: http://localhost:7000/api/repositories/jwflory
-    const urlpath = APIROOT + "/repositories/" + userID;
+    const urlpath = APIROOT + "/games/" + userID;
     runAjax(urlpath, suc, err);
 }
 
