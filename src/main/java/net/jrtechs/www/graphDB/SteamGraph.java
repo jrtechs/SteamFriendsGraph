@@ -254,8 +254,7 @@ public class SteamGraph
         return con.getTraversal().V()
                 .hasLabel(SteamGraph.KEY_PLAYER)
                 .has(Player.KEY_STEAM_ID, id)
-                .outE()
-                .inV()
+                .both()
                 .hasLabel(SteamGraph.KEY_PLAYER)
                 .valueMap()
                 .toStream()
@@ -383,68 +382,69 @@ public class SteamGraph
     public static void main(String[] args)
     {
         SteamGraph graph = new SteamGraph();
-        System.out.println(
-                graph.con.getTraversal().E().hasLabel(Game.KEY_RELATIONSHIP).count().next()
-        );
-//
-        Object o =
-                graph.con.getTraversal()
-                    .V()
-                    .hasLabel(Game.KEY_DB)
-                    .match(
-                            __.as("c").values(Game.KEY_STEAM_GAME_ID).as("gameID"),
-                            __.as("c").values(Game.KEY_GAME_NAME).as("gameName"),
-                            __.as("c").inE(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).as("time")
-                    ).select("gameID", "time", "gameName").toList();
-
-//        System.out.println(new Gson().toJson(o));
-        WrappedFileWriter.writeToFile(new Gson().toJson(o).toLowerCase(), "games.json");
-
 //        System.out.println(
+//                graph.con.getTraversal().E().hasLabel(Game.KEY_RELATIONSHIP).count().next()
+//        );
+////
+//        Object o =
 //                graph.con.getTraversal()
-//                        .V()
-//                        .hasLabel(Game.KEY_DB)
-//                        .match(
-//                                __.as("c").values(Game.KEY_STEAM_GAME_ID).as("gameID"),
-//                                __.as("c").values(Game.KEY_GAME_NAME).as("gameName"),
-//                                __.as("c").inE(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).as("averageGameTime")
-//                        ).select("gameID", "time", "averageGameTime").toList()
-//        );
-
-//        System.out.println(
-//                graph.con.getTraversal().V()
-//                        .hasLabel(Game.KEY_DB)
-//                        .as("g").inE()
-//                        .hasLabel(Game.KEY_RELATIONSHIP)
-//                        .as("p")
-//                        .project(Game.KEY_PLAY_TIME, Game.KEY_STEAM_GAME_ID).value().toList()
-//        );
-
-        System.out.println(
-                graph.con.getTraversal().E()
-                        .hasLabel(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).max().toList()
-        );
+//                    .V()
+//                    .hasLabel(Game.KEY_DB)
+//                    .match(
+//                            __.as("c").values(Game.KEY_STEAM_GAME_ID).as("gameID"),
+//                            __.as("c").values(Game.KEY_GAME_NAME).as("gameName"),
+//                            __.as("c").inE(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).as("time")
+//                    ).select("gameID", "time", "gameName").toList();
 //
-//        graph.getPlayer("76561198188400721")
-//            .getFriends().forEach(f->
-//            {
-//                graph.getGameList(f.getId());
+////        System.out.println(new Gson().toJson(o));
+//        WrappedFileWriter.writeToFile(new Gson().toJson(o).toLowerCase(), "games.json");
+//
+////        System.out.println(
+////                graph.con.getTraversal()
+////                        .V()
+////                        .hasLabel(Game.KEY_DB)
+////                        .match(
+////                                __.as("c").values(Game.KEY_STEAM_GAME_ID).as("gameID"),
+////                                __.as("c").values(Game.KEY_GAME_NAME).as("gameName"),
+////                                __.as("c").inE(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).as("averageGameTime")
+////                        ).select("gameID", "time", "averageGameTime").toList()
+////        );
+//
+////        System.out.println(
+////                graph.con.getTraversal().V()
+////                        .hasLabel(Game.KEY_DB)
+////                        .as("g").inE()
+////                        .hasLabel(Game.KEY_RELATIONSHIP)
+////                        .as("p")
+////                        .project(Game.KEY_PLAY_TIME, Game.KEY_STEAM_GAME_ID).value().toList()
+////        );
+//
+//        System.out.println(
+//                graph.con.getTraversal().E()
+//                        .hasLabel(Game.KEY_RELATIONSHIP).values(Game.KEY_PLAY_TIME).max().toList()
+//        );
+////
+        graph.getPlayer("76561198127662477");
+        graph.getGameList("76561198127662477");
+        graph.getPlayer("76561198406334664")
+            .getFriends().forEach(f->
+            {
+                graph.getGameList(f.getId());
 //                graph.getPlayer(f.getId()).getFriends().forEach(f2->
 //                {
 //                    graph.getGameList(f2.getId());
 //                    graph.getPlayer(f2.getId());
 //                });
-//            });
+            });
+//
+//        System.out.println(
+//                graph.con.getTraversal().V().hasLabel(SteamGraph.KEY_PLAYER)
+//                .has(SteamGraph.KEY_CRAWLED_GAME_STATUS, 1)
+//                .count().next()
+//        );
 
-        System.out.println(
-                graph.con.getTraversal().V().hasLabel(SteamGraph.KEY_PLAYER)
-                .has(SteamGraph.KEY_CRAWLED_GAME_STATUS, 1)
-                .count().next()
-        );
 
 
-//        graph.getPlayer("76561198062300654");
-        //graph.getGameList("76561198188400721");
 //        //graph.getPlayer("76561198068098265").getFriends().stream().forEach(System.out::println);
 ////        graph.indexPersonFriends("76561198188400721");
 //        graph.indexPersonsGames("76561198188400721");
