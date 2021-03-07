@@ -5,7 +5,7 @@ gremlin graph database. Currently this project scrapes the steam API for friends
 and their friends which can be used to generate a graph. This information is stored
 locally in a gremlin server and is then sent to the client via a web socket. 
 
-![Diagram](src/main/resources/website/Diagram.svg)
+![Diagram](website/Diagram.svg)
 
 
 [Video Of Friends of Friends Graph](https://www.youtube.com/watch?v=DoDaHmyIPvQ)
@@ -16,7 +16,7 @@ If you are lucky, you will find it live at [http://steam.jrtechs.net](http://ste
 It is still being actively developed and does not have permanent hosting so there is a %60
 chance at any time that you will be able to access it. 
 
-![Graph](src/main/resources/website/img/jrtechs2.png)
+![Graph](website/img/jrtechs2.png)
 
 
 ## Running this Project
